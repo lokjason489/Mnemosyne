@@ -1,13 +1,50 @@
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+@layer utilities {
+  ::-webkit-scrollbar {
+    width: 14px;
+    background-color: #F5F5F5;
+  }
+
+  /* Change the appearance of the thumb */
+  ::-webkit-scrollbar-thumb {
+    background-color: #888;
+    border-radius: 10px;
+    border: 3px solid #F5F5F5;
+  }
+
+  /* Change the appearance of the track */
+  ::-webkit-scrollbar-track {
+    background-color: #F5F5F5;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #aaa;
+  }
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+
+@layer base {
+  :root{
+    --color-primary: 178 153 102;
+    --color-secondary: 43 109 113;
+    --color-third: 112 112 112;
+    --color-primary-hover: 193 174 132;
+    --font-primary: Avenir,AvenirLTS,Helvetica,Arial,sans-serif;
+    --text-transform: none;
+    --round-primary: 0.25rem;
+    --background-image : url('https://www.grandlisboapalace.com/reservation/img/home_bg.342b00e4.jpg');
+    --alpha-05: 0.05;
+    --alpha-1: 0.1;
+    --alpha-25: 0.25;
+  }
+
+
+  html{
+    font-family: var(--font-primary);
+    -webkit-font-smoothing: antialiased;
+  }
+
 }
