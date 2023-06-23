@@ -157,7 +157,7 @@ const BallTest: React.FC<Props> = ({ onClose }) => {
 						<>
 							<Grid item xs={12}>
 								<Typography variant="h4" align="center">
-									Ball Test
+									開始小球記憶測
 								</Typography>
 							</Grid>
 							<Grid item xs={12}>
@@ -184,7 +184,7 @@ const BallTest: React.FC<Props> = ({ onClose }) => {
 										color="primary"
 										onClick={handleClick}
 									>
-										Start
+										開始
 									</Button>
 								</Grid>
 							</Grid>

@@ -21,12 +21,23 @@ const NumberTest: React.FC<Props> = ({ onClose }) => {
 	const [inputIndex, setInputIndex] = React.useState(0);
 
 	const startTimer = () => {
-		setNumbers(
-			Array.from({ length: level }, () => Math.floor(Math.random() * 100))
-		);
+		const usedNumbers = new Set(); // 用來儲存已經使用過的數字
+		const numbers = [];
+		while (numbers.length < level) {
+			let num = Math.floor(Math.random() * 10); // 隨機生成一個數字
+			while (usedNumbers.has(num)) {
+				num = Math.floor(Math.random() * 10); // 如果已經使用過，則重新生成
+			}
+			usedNumbers.add(num); // 標記這個數字已經使用過
+			numbers.push(num); // 將這個數字加入數組
+		}
+		console.log(numbers);
+		setNumbers(numbers);
 		setInputIndex(0);
+		setNumberTestStart(true);
 		setNumberTestEnd(false);
 		countRef.current = 0;
+		setCount(0);
 		const TimerId = setInterval(() => {
 			countRef.current += 1;
 			setCount(countRef.current);
@@ -90,7 +101,7 @@ const NumberTest: React.FC<Props> = ({ onClose }) => {
 							<>
 								<Grid item xs={12}>
 									<Typography variant="h4" align="center">
-										Number Test
+										開始短期記憶測驗
 									</Typography>
 								</Grid>
 								<Grid item xs={12}>
@@ -108,13 +119,16 @@ const NumberTest: React.FC<Props> = ({ onClose }) => {
 										aria-labelledby="input-slider"
 									/>
 								</Grid>
-								<Grid item xs={12} sx={{ display: "flex", justifyContent: "center" }}>
+								<Grid
+									item
+									xs={12}
+									sx={{ display: "flex", justifyContent: "center" }}
+								>
 									<Button
 										variant="contained"
 										color="primary"
 										onClick={() => {
 											setNumberTestConfirm(false);
-											setNumberTestStart(true);
 											setNumberTestEnd(false);
 											setNumberTestInputStart(false);
 											setNumberTestCorrect(0);
@@ -122,7 +136,7 @@ const NumberTest: React.FC<Props> = ({ onClose }) => {
 											startTimer();
 										}}
 									>
-										Start
+										開始
 									</Button>
 								</Grid>
 							</>

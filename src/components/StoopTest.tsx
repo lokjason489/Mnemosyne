@@ -68,7 +68,7 @@ const StoopTest: React.FC<Props> = ({ onClose }) => {
 							startTimer();
 						}}
 					>
-						Start Stroop Test
+						開始斯特魯測試
 					</Button>
 				</Box>
 			)}
