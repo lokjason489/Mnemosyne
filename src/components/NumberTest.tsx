@@ -7,6 +7,7 @@ import {
 	TextField,
 	Typography,
 } from "@mui/material";
+import { useTranslation } from "react-i18next";
 
 interface Props {
 	onClose: React.Dispatch<React.SetStateAction<number>>;
@@ -19,19 +20,18 @@ const NumberTest: React.FC<Props> = ({ onClose }) => {
 	const [numbers, setNumbers] = React.useState<number[]>([]);
 	const [currentInput, setCurrentInput] = React.useState("");
 	const [inputIndex, setInputIndex] = React.useState(0);
+	const { t } = useTranslation();
 
 	const startTimer = () => {
-		const usedNumbers = new Set(); // 用來儲存已經使用過的數字
-		const numbers = [];
+		const numbers: React.SetStateAction<number[]> = [];
 		while (numbers.length < level) {
 			let num = Math.floor(Math.random() * 10); // 隨機生成一個數字
-			while (usedNumbers.has(num)) {
-				num = Math.floor(Math.random() * 10); // 如果已經使用過，則重新生成
+			if(numbers.length > 0 && numbers[numbers.length - 1] === num) {
+				continue;
+			}else {
+				numbers.push(num); // 將這個数字加入散程
 			}
-			usedNumbers.add(num); // 標記這個數字已經使用過
-			numbers.push(num); // 將這個數字加入數組
 		}
-		console.log(numbers);
 		setNumbers(numbers);
 		setInputIndex(0);
 		setNumberTestStart(true);
@@ -83,9 +83,30 @@ const NumberTest: React.FC<Props> = ({ onClose }) => {
 	const [NumberTestEnd, setNumberTestEnd] = React.useState(false);
 
 	return (
-		<>
+		<Box
+			sx={{
+				padding: 2,
+				position: "relative",
+				display: "flex",
+				flexDirection: "row",
+				justifyContent: "center",
+				alignItems: "center",
+				height: "100%",
+			}}
+		>
 			{NumberTestConfirm && (
-				<>
+				<Box
+					sx={{
+						padding: 2,
+						position: "relative",
+						display: "flex",
+						flexDirection: "row",
+						justifyContent: "center",
+						alignItems: "center",
+						height: "100%",
+						paddingBottom: "20%",
+					}}
+				>
 					<Box
 						sx={{
 							padding: 2,
@@ -94,6 +115,7 @@ const NumberTest: React.FC<Props> = ({ onClose }) => {
 							flexDirection: "row",
 							justifyContent: "center",
 							alignItems: "center",
+							height: "100%",
 							paddingBottom: "20%",
 						}}
 					>
@@ -101,12 +123,15 @@ const NumberTest: React.FC<Props> = ({ onClose }) => {
 							<>
 								<Grid item xs={12}>
 									<Typography variant="h4" align="center">
-										開始短期記憶測驗
+										{t("NumberTest_Start")}
+									</Typography>
+									<Typography paddingTop={2} variant="body2" align="center">
+										{t("Number_desc")}
 									</Typography>
 								</Grid>
 								<Grid item xs={12}>
 									<Typography variant="body1" gutterBottom>
-										level: {level}
+										{t("level")}: {level}
 									</Typography>
 									<Slider
 										value={typeof level === "number" ? level : 0}
@@ -136,83 +161,118 @@ const NumberTest: React.FC<Props> = ({ onClose }) => {
 											startTimer();
 										}}
 									>
-										開始
+										{t("start")}
 									</Button>
 								</Grid>
 							</>
 						</Grid>
 					</Box>
-				</>
+				</Box>
 			)}
 			{NumberTestStart && !NumberTestInputStart && !NumberTestEnd && (
 				<Box
 					sx={{
 						flexGrow: 1,
+						padding: 2,
+						position: "relative",
 						display: "flex",
 						flexDirection: "column",
 						justifyContent: "center",
 						alignItems: "center",
+						height: "100%",
+						paddingBottom: "20%",
+						gap: "8px",
 					}}
 				>
-					<h3>Current Number:</h3>
-					<h1>{numbers[count]}</h1>
+					<Typography variant="h4" align="center">
+						{t("currNum")}
+					</Typography>
+					<Typography variant="h1" align="center">
+						{numbers[count]}
+					</Typography>
 				</Box>
 			)}
 			{!NumberTestStart && NumberTestInputStart && !NumberTestEnd && (
-				<form onSubmit={handleInputSubmit}>
-					<Box
-						sx={{
-							flexGrow: 1,
-							display: "flex",
-							flexDirection: "column",
-							justifyContent: "center",
-							alignItems: "center",
-							gap: "12px",
-						}}
-					>
-						<TextField
-							variant="standard"
-							label="Enter the numbers"
-							id="userInput"
-							name="userInput"
-							fullWidth
-							autoFocus
-							autoCorrect="off"
-							autoComplete="off"
-							autoCapitalize="off"
-							spellCheck="false"
-							value={currentInput}
-							onChange={handleInput}
-						/>
-						<Button variant="outlined" type="submit">
-							submit
-						</Button>
-					</Box>
-				</form>
+				<Box
+					maxWidth={"sm"}
+					sx={{
+						flexGrow: 1,
+						padding: 2,
+						position: "relative",
+						display: "flex",
+						flexDirection: "column",
+						justifyContent: "center",
+						alignItems: "center",
+						height: "100%",
+						width: "100%",
+						paddingBottom: "20%",
+						gap: "8px",
+					}}
+				>
+					<form style={{ width: "100%" }} onSubmit={handleInputSubmit}>
+						<Box
+							sx={{
+								flexGrow: 1,
+								padding: 2,
+								position: "relative",
+								display: "flex",
+								flexDirection: "column",
+								justifyContent: "center",
+								alignItems: "center",
+								height: "100%",
+								width: "100%",
+								gap: "8px",
+							}}
+						>
+							<TextField
+								variant="standard"
+								label={t("inputNum")}
+								id="userInput"
+								name="userInput"
+								fullWidth
+								autoFocus
+								autoCorrect="off"
+								autoComplete="off"
+								autoCapitalize="off"
+								spellCheck="false"
+								value={currentInput}
+								onChange={handleInput}
+							/>
+							<Button variant="outlined" type="submit">
+								{t("submit")}
+							</Button>
+						</Box>
+					</form>
+				</Box>
 			)}
 			{!NumberTestStart && !NumberTestInputStart && NumberTestEnd && (
 				<Box
 					sx={{
 						flexGrow: 1,
+						padding: 2,
+						position: "relative",
 						display: "flex",
 						flexDirection: "column",
 						justifyContent: "center",
 						alignItems: "center",
-						gap: "3px",
+						height: "100%",
+						paddingBottom: "20%",
+						gap: "8px",
 					}}
 				>
-					<Typography variant="h2" align="center">
-						Number Test
+					<Typography variant="h4" align="center">
+						{t("NumberTest")}
 					</Typography>
 					{/* <h2>Time: {NumberTestTime} seconds</h2> */}
-					<Typography variant="h2" align="center">
-						Correct Answers: {NumberTestCorrect}
+					<Typography variant="h5" align="center">
+						{t("correct_Ans")} : {NumberTestCorrect}
 					</Typography>
-					<Typography variant="h2" align="center">
-						Wrong Answers: {NumberTestWrong}
+					<Typography variant="h5" align="center">
+						{t("wrong_Ans")} : {NumberTestWrong}
 					</Typography>
 					<Button
 						variant="outlined"
+						size="large"
 						onClick={() => {
 							setNumberTestConfirm(true);
 							setNumberTestStart(false);
@@ -223,11 +283,11 @@ const NumberTest: React.FC<Props> = ({ onClose }) => {
 							onClose(0);
 						}}
 					>
-						Again
+						{t("again")}
 					</Button>
 				</Box>
 			)}
-		</>
+		</Box>
 	);
 };
 

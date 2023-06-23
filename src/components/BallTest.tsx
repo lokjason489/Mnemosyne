@@ -7,6 +7,7 @@ import {
 	TextField,
 	Typography,
 } from "@mui/material";
+import { t } from "i18next";
 
 interface Props {
 	onClose: React.Dispatch<React.SetStateAction<number>>;
@@ -67,14 +68,14 @@ const BallTest: React.FC<Props> = ({ onClose }) => {
 				const drawBall = (x: number, y: number) => {
 					ctx.beginPath();
 					ctx.arc(
-						x + diameter / 2,
-						y + diameter / 2,
-						diameter / 2,
-						0,
-						2 * Math.PI
+					  x + diameter / 2,
+					  y + diameter / 2,
+					  diameter / 2,
+					  0,
+					  2 * Math.PI
 					);
 					ctx.fill();
-				};
+				  };
 
 				const updateBalls = () => {
 					ctx.clearRect(0, 0, canvasWidth, canvasHeight);
@@ -146,10 +147,11 @@ const BallTest: React.FC<Props> = ({ onClose }) => {
 				flexDirection: "row",
 				justifyContent: "center",
 				alignItems: "center",
+				height: "100%",
 				paddingBottom: "20%",
 			}}
 		>
-			<Grid container spacing={2} alignItems="center">
+			<Grid container spacing={2} alignItems="center" justifyContent={"center"}>
 				{BallTestConfirm &&
 					!BallTestStart &&
 					!BallTestInputStart &&
@@ -157,12 +159,15 @@ const BallTest: React.FC<Props> = ({ onClose }) => {
 						<>
 							<Grid item xs={12}>
 								<Typography variant="h4" align="center">
-									開始小球記憶測
-								</Typography>
+										{t("BallTest_Start")}
+									</Typography>
+									<Typography paddingTop={2} variant="body2" align="center">
+										{t("Ball_desc")}
+									</Typography>
 							</Grid>
 							<Grid item xs={12}>
 								<Typography variant="body1" gutterBottom>
-									Number of Balls: {numBalls[0]} - {numBalls[1]}
+								{t('BallNum')}: {numBalls[0]} - {numBalls[1]}
 								</Typography>
 								<Slider
 									value={numBalls}
@@ -184,13 +189,13 @@ const BallTest: React.FC<Props> = ({ onClose }) => {
 										color="primary"
 										onClick={handleClick}
 									>
-										開始
+										{t('start')}
 									</Button>
 								</Grid>
 							</Grid>
 						</>
 					)}
-				<Grid item xs={12}>
+				<Grid item xs={12} md={8} lg={6}>
 					{BallTestInputStart && (
 						<form
 							onSubmit={() => {
@@ -207,12 +212,12 @@ const BallTest: React.FC<Props> = ({ onClose }) => {
 									flexDirection: "column",
 									justifyContent: "center",
 									alignItems: "center",
-									gap: "12px",
+									gap: "12px",					
 								}}
 							>
 								<TextField
 									variant="standard"
-									label="Enter the numbers"
+									label={t('inputNum')}
 									id="userInput"
 									name="userInput"
 									autoFocus
@@ -226,7 +231,7 @@ const BallTest: React.FC<Props> = ({ onClose }) => {
 									onChange={handleInput}
 								/>
 								<Button variant="outlined" type="submit">
-									submit
+								{t('submit')}
 								</Button>
 							</Box>
 						</form>
@@ -240,12 +245,15 @@ const BallTest: React.FC<Props> = ({ onClose }) => {
 								alignItems: "center",
 								gap: "12px",
 							}}
-						>
+						>	
 							<Typography variant="h4" align="center">
-								Display Number of Balls: {BallTestRandomNum}
+						{t("BallTest")}
+					</Typography>
+							<Typography variant="h5" align="center">
+							{t('display_Ball')}: {BallTestRandomNum}
 							</Typography>
-							<Typography variant="h4" align="center">
-								User Input Number of Balls: {BallTestInputNum}
+							<Typography variant="h5" align="center">
+							{t('yser_Input_Ball')}: {BallTestInputNum}
 							</Typography>
 							<Button
 								variant="outlined"
@@ -257,25 +265,34 @@ const BallTest: React.FC<Props> = ({ onClose }) => {
 									onClose(1);
 								}}
 							>
-								Again
+								{t('again')}
 							</Button>
 						</Box>
 					)}
 				</Grid>
 			</Grid>
 			<div
-				id="canvas"
+				
 				className={`${BallTestStart ? "" : "hidden"}`}
-				style={{
-					minHeight: "300px",
-					position: "absolute",
-					top: 0,
-					bottom: 0,
-					left: 0,
-					right: 0,
-				}}
+				style={
+					{
+						height:"100%",
+						width:"100%",
+						position:"absolute",
+						display: "flex",
+						justifyContent: "center",
+						top:0,
+						bottom:0,
+						alignItems:'center'
+					}
+				}
 			>
-				<canvas ref={canvasRef} />
+				<canvas id="canvas" style={{
+					aspectRatio: 1,
+					width: "100%",
+					maxWidth:"450px",
+					maxHeight:"450px",
+				}} ref={canvasRef} />
 			</div>
 		</Box>
 	);

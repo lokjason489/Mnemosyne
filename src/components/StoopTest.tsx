@@ -1,6 +1,7 @@
 import { Box, Button, Typography } from "@mui/material";
 import React from "react";
 import Grid from "@mui/material/Unstable_Grid2";
+import { t } from "i18next";
 
 interface Props {
 	onClose: React.Dispatch<React.SetStateAction<number>>;
@@ -42,19 +43,27 @@ const StoopTest: React.FC<Props> = ({ onClose }) => {
 	const [stroopEnd, setStroopEnd] = React.useState(false);
 	const [stroopResult, setStroopResult] = React.useState(false);
 
-
 	return (
 		<>
 			{!stroopStart && (
 				<Box
 					sx={{
-						flexGrow: 1,
+						padding: 2,
+						position: "relative",
 						display: "flex",
 						flexDirection: "column",
 						justifyContent: "center",
 						alignItems: "center",
+						height: "100%",
+						paddingBottom: "20%",
 					}}
 				>
+					<Typography variant="h4" align="center">
+						{t("StoopTest_Start")}
+					</Typography>
+					<Typography padding={2} variant="body2" align="center">
+						{t("Stoop_long_desc")}
+					</Typography>
 					<Button
 						variant="contained"
 						color="primary"
@@ -68,24 +77,45 @@ const StoopTest: React.FC<Props> = ({ onClose }) => {
 							startTimer();
 						}}
 					>
-						開始斯特魯測試
+						{t("start")}
 					</Button>
 				</Box>
 			)}
 			{stroopStart && !stroopEnd && (
 				<Box
 					sx={{
-						flexGrow: 1,
+						padding: 2,
+						position: "relative",
 						display: "flex",
 						flexDirection: "column",
 						justifyContent: "center",
 						alignItems: "center",
+						height: "100%",
 						paddingBottom: "20%",
 					}}
 				>
-					<h1>斯特魯測試</h1>
-					<h2>按單詞顏色的按鈕，而不是文本的顏色！</h2>
-					<h1 style={{ color: stroopColor.value,width:"150px", textAlign:"center" , backgroundColor: "rgba(0,0,0,.4)" }}>{stroopWord.text}</h1>
+					<Typography variant="h4" align="center">
+						{t("StoopTest")}
+					</Typography>
+					<Typography paddingTop={2} variant="body2" align="center">
+						{t("Stoop_desc")}
+					</Typography>
+					<Typography
+						paddingY={1}
+						borderRadius={12}
+						margin={2}
+						variant="h4"
+						align="center"
+						fontWeight={700}
+						sx={{
+							color: stroopColor.value,
+							width: "150px",
+							textAlign: "center",
+							backgroundColor: "rgba(34, 34, 34,.4)",
+						}}
+					>
+						{t(stroopWord.value)}
+					</Typography>
 
 					<Grid
 						container
@@ -137,7 +167,7 @@ const StoopTest: React.FC<Props> = ({ onClose }) => {
 										}
 									}}
 								>
-									{color.text}
+									{t(color.value)}
 								</Button>
 							</Grid>
 						))}
@@ -147,19 +177,30 @@ const StoopTest: React.FC<Props> = ({ onClose }) => {
 			{stroopEnd && !stroopResult && (
 				<Box
 					sx={{
-						flexGrow: 1,
+						padding: 2,
+						position: "relative",
 						display: "flex",
 						flexDirection: "column",
 						justifyContent: "center",
 						alignItems: "center",
-						gap: "3px",
+						height: "100%",
+						paddingBottom: "20%",
+						gap:"8px"
 					}}
 				>
-					<Typography variant="h4" align="center">Stroop Test Results</Typography>
-					<Typography variant="h4" align="center">Correct Answers: {stroopCorrect}</Typography>
-					<Typography variant="h4" align="center">Wrong Answers: {stroopWrong}</Typography>
+					<Typography variant="h4" align="center">
+						{t("StoopTest_Result")}
+					</Typography>
+					<Typography variant="h5" align="center">
+						{t("correct_Ans")}: {stroopCorrect}
+					</Typography>
+					<Typography variant="h5" align="center">
+						{t("wrong_Ans")}: {stroopWrong}
+					</Typography>
 
-					<Typography variant="h4" align="center">Time: {stroopTime} seconds</Typography>
+					<Typography variant="h5" align="center">
+						{t("time")}: {stroopTime} {t("seconds")}
+					</Typography>
 					<Button
 						variant="outlined"
 						onClick={() => {
@@ -172,7 +213,7 @@ const StoopTest: React.FC<Props> = ({ onClose }) => {
 							onClose(2);
 						}}
 					>
-						Again
+						{t("again")}
 					</Button>
 				</Box>
 			)}
