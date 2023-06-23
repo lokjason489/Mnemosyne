@@ -220,9 +220,10 @@ const HomePage: React.FC<Props> = () => {
 			<ThemeProvider theme={theme}>
 				<CssBaseline />
 				<AppBar color="transparent" position="relative">
-					<Toolbar disableGutters sx={{ width: "100%", display: "flex" }}>
+					<Toolbar disableGutters = {!isLargeScreen} sx={{ width: "100%", display: "flex" }}>
 						<Box sx={{ width: "100%", display: "flex" ,flexGrow:1}}>
 							<Tabs
+							    centered
 								value={option}
 								onChange={handleChange}
 								aria-label="Main Function Tabs"
@@ -234,16 +235,19 @@ const HomePage: React.FC<Props> = () => {
 								<Tab
 									label={isLargeScreen ? t("NumberTest") : t("Number_short")}
 									wrapped = {true}
+									sx={{flex:"1 1 0", fontWeight:"500",fontSize:"1rem"}}
 									{...a11yProps(0)}
 								/>
 								<Tab
 									label={isLargeScreen ? t("BallTest") : t("Ball_short")}
 									wrapped = {true}
+									sx={{flex:"1 1 0", fontWeight:"500",fontSize:"1rem"}}
 									{...a11yProps(1)}
 								/>
 								<Tab
 									label={isLargeScreen ? t("StoopTest") : t("StoopTest_short")}
 									wrapped = {true}
+									sx={{flex:"1 1 0", fontWeight:"500",fontSize:"1rem"}}
 									{...a11yProps(2)}
 								/>
 							</Tabs>
