@@ -5,7 +5,7 @@ import CssBaseline from "@mui/material/CssBaseline";
 import Box from "@mui/material/Box";
 import Container from "@mui/material/Container";
 import Toolbar from "@mui/material/Toolbar";
-import { createTheme, ThemeProvider } from "@mui/material/styles";
+import { createTheme, ThemeProvider, useTheme } from "@mui/material/styles";
 import Tab from "@mui/material/Tab";
 import {
 	Button,
@@ -22,6 +22,7 @@ import { useTranslation } from "react-i18next";
 import DarkModeRoundedIcon from "@mui/icons-material/DarkModeRounded";
 import LightModeRoundedIcon from "@mui/icons-material/LightModeRounded";
 import useMediaQuery from "@mui/material/useMediaQuery";
+import GTranslateRoundedIcon from "@mui/icons-material/GTranslateRounded";
 
 interface Props {}
 
@@ -61,49 +62,70 @@ const ColorModeContext = React.createContext({ toggleColorMode: () => {} });
 
 const darkTheme = createTheme({
 	palette: {
-	  mode: 'dark',
-	  background: {
-		default: '#222222',
-		paper: '#313131',
-	  },
-	  primary: {
-		main: '#90caf9',
-	  },
-	  secondary: {
-		main: '#a5d6a7',
-	  },
-	  text: {
-		primary: '#fafafa',
-		secondary: '#c4c4c4 ',
-	  },
+		mode: "dark",
+		background: {
+			default: "#222222",
+			paper: "#313131",
+		},
+		primary: {
+			main: "#90caf9",
+		},
+		secondary: {
+			main: "#a5d6a7",
+		},
+		text: {
+			primary: "#fafafa",
+			secondary: "#c4c4c4 ",
+		},
 	},
-  });
-  
-  const lightTheme = createTheme({
+	breakpoints: {
+		values: {
+			xs: 0,
+			sm: 600,
+			md: 900,
+			lg: 1200,
+			xl: 1536,
+		},
+	},
+});
+
+const lightTheme = createTheme({
 	palette: {
-	  mode: 'light',
-	  background: {
-		default: '#F4F7F5',
-		paper: '#f4f7f5',
-	  },
-	  primary: {
-		main: '#1976d2',
-	  },
-	  secondary: {
-		main: '#4caf50',
-	  },
-	  text: {
-		primary: '#333',
-		secondary: '#777',
-	  },
+		mode: "light",
+		background: {
+			default: "#F4F7F5",
+			paper: "#f4f7f5",
+		},
+		primary: {
+			main: "#1976d2",
+		},
+		secondary: {
+			main: "#4caf50",
+		},
+		text: {
+			primary: "#333",
+			secondary: "#777",
+		},
 	},
-  });
+	breakpoints: {
+		values: {
+			xs: 0,
+			sm: 600,
+			md: 900,
+			lg: 1200,
+			xl: 1536,
+		},
+	},
+});
 
 const HomePage: React.FC<Props> = () => {
 	const [option, setOption] = React.useState(0);
 
-	const [mode, setMode] = React.useState<"light" | "dark">(useMediaQuery('(prefers-color-scheme: dark)')? 'dark' : 'light');
-
+	const [mode, setMode] = React.useState<"light" | "dark">(
+		useMediaQuery("(prefers-color-scheme: dark)") ? "dark" : "light"
+	);
+	const theme_Size = useTheme();
+	const isLargeScreen = useMediaQuery(theme_Size.breakpoints.up("md"));
 	const { t, i18n } = useTranslation();
 	const [open, setOpen] = React.useState(false);
 	const colorMode = React.useMemo(
@@ -117,17 +139,27 @@ const HomePage: React.FC<Props> = () => {
 
 	const theme = React.useMemo(
 		() =>
-		  createTheme({
-			palette: {
-			  mode,
-			  background: mode === 'dark' ? darkTheme.palette.background : lightTheme.palette.background,
-			  primary: mode === 'dark' ? darkTheme.palette.primary : lightTheme.palette.primary,
-			  secondary: mode === 'dark' ? darkTheme.palette.secondary : lightTheme.palette.secondary,
-			  text: mode === 'dark' ? darkTheme.palette.text : lightTheme.palette.text,
-			},
-		  }),
+			createTheme({
+				palette: {
+					mode,
+					background:
+						mode === "dark"
+							? darkTheme.palette.background
+							: lightTheme.palette.background,
+					primary:
+						mode === "dark"
+							? darkTheme.palette.primary
+							: lightTheme.palette.primary,
+					secondary:
+						mode === "dark"
+							? darkTheme.palette.secondary
+							: lightTheme.palette.secondary,
+					text:
+						mode === "dark" ? darkTheme.palette.text : lightTheme.palette.text,
+				},
+			}),
 		[mode]
-	  );
+	);
 
 	const handleChange = (event: React.SyntheticEvent, newValue: number) => {
 		setOption(newValue);
@@ -188,35 +220,68 @@ const HomePage: React.FC<Props> = () => {
 			<ThemeProvider theme={theme}>
 				<CssBaseline />
 				<AppBar color="transparent" position="relative">
-					<Toolbar disableGutters>
-						<Box sx={{ width: "100%", display: "flex", flexGrow: 1 }}>
+					<Toolbar disableGutters sx={{ width: "100%", display: "flex" }}>
+						<Box sx={{ width: "100%", display: "flex" ,flexGrow:1}}>
 							<Tabs
 								value={option}
-								centered
 								onChange={handleChange}
 								aria-label="Main Function Tabs"
+								variant={isLargeScreen ? "fullWidth" : "scrollable"}
+								// scrollButtons={!isLargeScreen}
+								// allowScrollButtonsMobile={!isLargeScreen}
 								textColor="inherit"
 							>
-								<Tab label={t("NumberTest")} wrapped {...a11yProps(0)} />
-								<Tab label={t("BallTest")} wrapped {...a11yProps(1)} />
-								<Tab label={t("StoopTest")} wrapped {...a11yProps(2)} />
+								<Tab
+									label={isLargeScreen ? t("NumberTest") : t("Number_short")}
+									wrapped = {true}
+									{...a11yProps(0)}
+								/>
+								<Tab
+									label={isLargeScreen ? t("BallTest") : t("Ball_short")}
+									wrapped = {true}
+									{...a11yProps(1)}
+								/>
+								<Tab
+									label={isLargeScreen ? t("StoopTest") : t("StoopTest_short")}
+									wrapped = {true}
+									{...a11yProps(2)}
+								/>
 							</Tabs>
 						</Box>
-						<Box
-							sx={{ display: "flex", justifyContent: "flex-end", flexGrow: 1 }}
-						>
-							<Button
-								ref={anchorRef}
-								id="composition-button"
-								aria-controls={open ? "composition-menu" : undefined}
-								aria-expanded={open ? "true" : undefined}
-								aria-haspopup="true"
-								size="small"
-								sx={{ width: "100px" }}
-								onClick={handleToggle}
-							>
-								{language}
-							</Button>
+						<Box sx={{ flexBasis:"50px" }}>
+							{isLargeScreen && (
+								<Button
+									ref={anchorRef}
+									id="composition-button"
+									aria-controls={open ? "composition-menu" : undefined}
+									aria-expanded={open ? "true" : undefined}
+									aria-haspopup="true"
+									size="small"
+									sx={{ width: "100px" }}
+									onClick={handleToggle}
+								>
+									{language}
+								</Button>
+							)}
+							{!isLargeScreen && (
+								<IconButton
+									sx={{ ml: 1 }}
+									ref={anchorRef}
+									id="composition-button"
+									aria-controls={open ? "composition-menu" : undefined}
+									aria-expanded={open ? "true" : undefined}
+									aria-haspopup="true"
+									size="small"
+									color="inherit"
+									onClick={handleToggle}
+								>
+									<GTranslateRoundedIcon
+										color="primary"
+										fontSize="small"
+									></GTranslateRoundedIcon>
+								</IconButton>
+							)}
+
 							<Popper
 								open={open}
 								anchorEl={anchorRef.current}
@@ -224,6 +289,7 @@ const HomePage: React.FC<Props> = () => {
 								placement="top-start"
 								transition
 								disablePortal
+								sx={{zIndex:99}}
 							>
 								{({ TransitionProps, placement }) => (
 									<Grow
@@ -261,22 +327,26 @@ const HomePage: React.FC<Props> = () => {
 								)}
 							</Popper>
 						</Box>
-						<Box
-							sx={{
-								display: "flex",
-								justifyContent: "flex-end",
-								paddingRight: "10px",
-							}}
-						>
+						<Box sx={{ flexBasis:"50px" }}>
 							<IconButton
 								sx={{ ml: 1 }}
 								onClick={colorMode.toggleColorMode}
 								color="inherit"
 							>
 								{theme.palette.mode === "light" ? (
-									<DarkModeRoundedIcon  color="primary"/>
+									<DarkModeRoundedIcon
+										fontSize={
+											theme.breakpoints.down("md") ? "small" : "inherit"
+										}
+										color="primary"
+									/>
 								) : (
-									<LightModeRoundedIcon color="primary"/>
+									<LightModeRoundedIcon
+										fontSize={
+											theme.breakpoints.down("md") ? "small" : "inherit"
+										}
+										color="primary"
+									/>
 								)}
 							</IconButton>
 						</Box>
