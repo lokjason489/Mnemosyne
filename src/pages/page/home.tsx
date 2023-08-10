@@ -223,7 +223,6 @@ const HomePage: React.FC<Props> = () => {
 					<Toolbar disableGutters = {!isLargeScreen} sx={{ width: "100%", display: "flex" }}>
 						<Box sx={{ width: "100%", display: "flex" ,flexGrow:1}}>
 							<Tabs
-							    centered
 								value={option}
 								onChange={handleChange}
 								aria-label="Main Function Tabs"

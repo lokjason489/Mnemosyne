@@ -8,14 +8,32 @@ interface Props {
 }
 
 const StoopTest: React.FC<Props> = ({ onClose }) => {
-	const [count, setCount] = React.useState(0);
+	const [count, setCount] = React.useState<number>(0.0);
 
-	const startTimer = () => {
+	// const startTimer = () => {
+	// 	setCount(0);
+	// 	const timer = setInterval(() => {
+	// 		setCount((count) => count + 1);
+	// 	}, 1000);
+	// 	return () => clearInterval(timer);
+	// };
+
+	const startTimer = (interval: number, increment: number) => {
 		setCount(0);
 		const timer = setInterval(() => {
-			setCount((count) => count + 1);
-		}, 1000);
+			setCount((count) => count + increment);
+		}, interval);
 		return () => clearInterval(timer);
+	};
+
+	const [hard, setHard] = React.useState(false);
+	const [superHard, setSuperHard] = React.useState(false);
+
+	//gen random number
+	const getRandomInt = (min: number, max: number) => {
+		min = Math.ceil(min);
+		max = Math.floor(max);
+		return Math.floor(Math.random() * (max - min + 1) + min); // The maximum is inclusive and the minimum is inclusive
 	};
 
 	const stroop = [
@@ -30,6 +48,26 @@ const StoopTest: React.FC<Props> = ({ onClose }) => {
 		{ textColor: "white", value: "pink", text: "粉紅色" },
 		{ textColor: "white", value: "brown", text: "棕色" },
 	];
+
+	const [buttonColorList, setButtonColorList] = React.useState<
+		Array<{ bg: string; color: string }>
+	>([]);
+
+	const randanColor = () => {
+		const newButtonColorList = [];
+		for (let i = 0; i < stroop.length; i++) {
+			let bg = stroop[getRandomInt(0, stroop.length - 1)].value;
+			let color = bg;
+			while (color === bg) {
+				color = stroop[getRandomInt(0, stroop.length - 1)].textColor;
+			}
+			newButtonColorList.push({
+				bg,
+				color,
+			});
+		}
+		setButtonColorList(newButtonColorList);
+	};
 	const [stroopColor, setStroopColor] = React.useState(
 		stroop[Math.floor(Math.random() * 10)]
 	);
@@ -56,6 +94,7 @@ const StoopTest: React.FC<Props> = ({ onClose }) => {
 						alignItems: "center",
 						height: "100%",
 						paddingBottom: "20%",
+						gap: "10px",
 					}}
 				>
 					<Typography variant="h4" align="center">
@@ -64,21 +103,68 @@ const StoopTest: React.FC<Props> = ({ onClose }) => {
 					<Typography padding={2} variant="body2" align="center">
 						{t("Stoop_long_desc")}
 					</Typography>
-					<Button
-						variant="contained"
-						color="primary"
-						onClick={() => {
-							setStroopStart(true);
-							setStroopEnd(false);
-							setStroopCorrect(0);
-							setStroopWrong(0);
-							setStroopTime(0);
-							setStroopResult(false);
-							startTimer();
+					<Box
+						sx={{
+							position: "relative",
+							display: "flex",
+							justifyContent: "center",
+							alignItems: "center",
+							gap: "10px",
 						}}
 					>
-						{t("start")}
-					</Button>
+						<Button
+							variant="contained"
+							color="primary"
+							onClick={() => {
+								setStroopStart(true);
+								setStroopEnd(false);
+								setStroopCorrect(0);
+								setStroopWrong(0);
+								setStroopTime(0);
+								setStroopResult(false);
+								startTimer(10, 0.01);
+								setHard(false);
+								setSuperHard(false);
+							}}
+						>
+							{t("easy")}
+						</Button>
+						<Button
+							variant="contained"
+							color="primary"
+							onClick={() => {
+								setStroopStart(true);
+								setStroopEnd(false);
+								setStroopCorrect(0);
+								setStroopWrong(0);
+								setStroopTime(0);
+								setStroopResult(false);
+								startTimer(10, 0.01);
+								setHard(true);
+								setSuperHard(false);
+							}}
+						>
+							{t("medium")}
+						</Button>
+						<Button
+							variant="contained"
+							color="primary"
+							onClick={() => {
+								randanColor();
+								setStroopStart(true);
+								setStroopEnd(false);
+								setStroopCorrect(0);
+								setStroopWrong(0);
+								setStroopTime(0);
+								setStroopResult(false);
+								startTimer(10, 0.01);
+								setHard(false);
+								setSuperHard(true);
+							}}
+						>
+							{t("difficult")}
+						</Button>
+					</Box>
 				</Box>
 			)}
 			{stroopStart && !stroopEnd && (
@@ -124,6 +210,7 @@ const StoopTest: React.FC<Props> = ({ onClose }) => {
 					>
 						{stroop.map((color, index) => (
 							<Grid
+								key={index}
 								xs={2}
 								sm={4}
 								md={3}
@@ -133,11 +220,19 @@ const StoopTest: React.FC<Props> = ({ onClose }) => {
 								alignItems="center"
 							>
 								<Button
-									variant="contained"
+									variant={hard || superHard ? "outlined" : "contained"}
 									key={index}
 									style={{
-										backgroundColor: color.value,
-										color: color.textColor,
+										backgroundColor: hard
+											? ""
+											: superHard
+											? buttonColorList[index].bg
+											: color.value,
+										color: hard
+											? ""
+											: superHard
+											? buttonColorList[index].color
+											: color.textColor,
 										width: "50%",
 										margin: "auto",
 										fontWeight: "bold",
@@ -185,7 +280,7 @@ const StoopTest: React.FC<Props> = ({ onClose }) => {
 						alignItems: "center",
 						height: "100%",
 						paddingBottom: "20%",
-						gap:"8px"
+						gap: "8px",
 					}}
 				>
 					<Typography variant="h4" align="center">
@@ -199,7 +294,7 @@ const StoopTest: React.FC<Props> = ({ onClose }) => {
 					</Typography>
 
 					<Typography variant="h5" align="center">
-						{t("time")}: {stroopTime} {t("seconds")}
+						{t("time")}: {stroopTime.toFixed(2)} {t("seconds")}
 					</Typography>
 					<Button
 						variant="outlined"

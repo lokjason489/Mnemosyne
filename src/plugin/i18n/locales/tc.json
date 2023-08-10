@@ -35,5 +35,9 @@
     "black": "黑色",
     "white": "白色",
     "pink": "粉色",
-    "brown": "棕色"
+    "brown": "棕色",
+    "easy":"容易",
+	"medium":"中等",
+	"difficult":"困難",
+    "NumberInputError": "請輸入0-9的數字"
 }

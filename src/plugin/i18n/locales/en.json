@@ -35,5 +35,9 @@
 	"black": "black",
 	"white": "white",
 	"pink": "pink",
-	"brown": "brown"
+	"brown": "brown",
+	"easy":"Easy",
+	"medium":"Medium",
+	"difficult":"Difficult",
+	"NumberInputError":"Please enter 0 - 9 number"
 }
