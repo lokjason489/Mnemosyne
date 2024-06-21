@@ -1,9 +1,8 @@
 {
-  "name": "wong-wa",
-  "version": "0.1.0",
+  "name": "mnemosyne",
+  "version": "0.2.0",
   "private": true,
   "dependencies": {
-    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
     "@mui/icons-material": "^5.11.16",
@@ -17,8 +16,8 @@
     "@types/react-dom": "^18.2.6",
     "firebase": "^9.22.2",
     "i18next": "^23.2.3",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
+    "react": "19.0.0-rc-6fb39ec9e9-20240621",
+    "react-dom": "19.0.0-rc-6fb39ec9e9-20240621",
     "react-i18next": "^13.0.1",
     "react-scripts": "5.0.1",
     "typescript": "^4.9.5",
