@@ -30,6 +30,7 @@ export const MemoryGame: React.FC = () => {
   const [gameState, setGameState] = useState<GameStateType>(GAME_STATE.START);
   const [showingIndex, setShowingIndex] = useState(0);
   const [activeBlock, setActiveBlock] = useState<number | null>(null);
+  const [isPreparing, setIsPreparing] = useState(false);
 
   const startNextLevel = useCallback((lvl: number) => {
     setUserSequence([]);
@@ -51,32 +52,44 @@ export const MemoryGame: React.FC = () => {
 
     setSequence(newSequence);
     setGameState(GAME_STATE.SHOWING);
+    setIsPreparing(true);
   }, []);
 
-  // Play sequence during SHOWING phase
+  // Handle preparation delay before flashing the first block
   useEffect(() => {
-    if (gameState === GAME_STATE.SHOWING) {
+    if (gameState === GAME_STATE.SHOWING && isPreparing) {
+      const prepTimer = setTimeout(() => {
+        setIsPreparing(false);
+      }, 1000); // 1-second preparation buffer
+
+      return () => clearTimeout(prepTimer);
+    }
+  }, [gameState, isPreparing]);
+
+  // Play sequence during SHOWING phase after preparation
+  useEffect(() => {
+    if (gameState === GAME_STATE.SHOWING && !isPreparing) {
       if (showingIndex < sequence.length) {
         setActiveBlock(sequence[showingIndex]);
         const onTimer = setTimeout(() => {
           setActiveBlock(null);
           const offTimer = setTimeout(() => {
             setShowingIndex((prev) => prev + 1);
-          }, 200);
+          }, 250); // Pause between blocks
           return () => clearTimeout(offTimer);
-        }, 500);
+        }, 550); // Illumination duration
 
         return () => clearTimeout(onTimer);
-      } else {
-        // Finished showing sequence
-        const waitTimer = setTimeout(() => {
-          setActiveBlock(null);
-          setGameState(GAME_STATE.WAITING);
-        }, 300);
-        return () => clearTimeout(waitTimer);
       }
+
+      // Finished showing sequence
+      const waitTimer = setTimeout(() => {
+        setActiveBlock(null);
+        setGameState(GAME_STATE.WAITING);
+      }, 300);
+      return () => clearTimeout(waitTimer);
     }
-  }, [gameState, showingIndex, sequence]);
+  }, [gameState, isPreparing, showingIndex, sequence]);
 
   // Handle block clicking by user
   const handleBlockClick = (index: number) => {
@@ -125,7 +138,7 @@ export const MemoryGame: React.FC = () => {
 
   return (
     <div className="w-full max-w-xl mx-auto">
-      <GlowCard className="p-6 md:p-8" glowColor="rgba(245, 158, 11, 0.15)">
+      <GlowCard className="p-6 md:p-8" glowColor="rgba(245, 158, 11, 0.2)">
         <AnimatePresence mode="wait">
           {/* 1. START SCREEN */}
           {gameState === GAME_STATE.START && (
@@ -136,15 +149,15 @@ export const MemoryGame: React.FC = () => {
               exit={{ opacity: 0, y: -10 }}
               className="flex flex-col items-center text-center gap-6"
             >
-              <div className="flex items-center justify-center w-16 h-16 rounded-3xl bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-800">
+              <div className="flex items-center justify-center w-16 h-16 rounded-3xl bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 border-2 border-amber-300 dark:border-amber-800 shadow-sm">
                 <Grid3X3 className="w-8 h-8" />
               </div>
 
               <div className="space-y-2">
-                <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight">
+                <h2 className="text-2xl md:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
                   {t('MemoryGame')}
                 </h2>
-                <p className="text-sm md:text-base text-slate-500 dark:text-slate-400 max-w-md">
+                <p className="text-sm md:text-base text-slate-700 dark:text-slate-300 font-medium max-w-md">
                   Watch the glowing pattern and repeat the exact sequence of blocks.
                 </p>
               </div>
@@ -153,7 +166,7 @@ export const MemoryGame: React.FC = () => {
                 variant="primary"
                 size="lg"
                 onClick={handleStartGame}
-                className="w-full max-w-xs mt-2 bg-gradient-to-r from-amber-500 to-orange-600 hover:shadow-amber-500/30"
+                className="w-full max-w-xs mt-2 bg-gradient-to-r from-amber-600 to-orange-600 hover:shadow-amber-500/30"
               >
                 <Play className="w-5 h-5 fill-current" />
                 <span>{t('start')}</span>
@@ -170,16 +183,16 @@ export const MemoryGame: React.FC = () => {
               exit={{ opacity: 0, scale: 0.95 }}
               className="flex flex-col items-center gap-6"
             >
-              {/* Stats Bar */}
+              {/* Stats Bar with High Contrast */}
               <div className="flex items-center justify-between w-full max-w-sm px-2">
-                <div className="flex items-center gap-1.5 text-xs font-bold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/60 px-3 py-1.5 rounded-full border border-amber-200 dark:border-amber-800">
+                <div className="flex items-center gap-1.5 text-xs font-bold text-amber-800 dark:text-amber-300 bg-amber-100 dark:bg-amber-950/70 px-3.5 py-1.5 rounded-full border border-amber-300 dark:border-amber-800 shadow-sm">
                   <Flame className="w-3.5 h-3.5" />
                   <span>
                     {t('level')} <SlidingNumber value={level} />
                   </span>
                 </div>
 
-                <div className="flex items-center gap-1.5 text-xs font-mono font-bold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-700">
+                <div className="flex items-center gap-1.5 text-xs font-mono font-bold text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 px-3.5 py-1.5 rounded-full border border-slate-300 dark:border-slate-700 shadow-sm">
                   <Trophy className="w-3.5 h-3.5 text-amber-500" />
                   <span>
                     {t('Score')}: <SlidingNumber value={score} />
@@ -187,15 +200,22 @@ export const MemoryGame: React.FC = () => {
                 </div>
               </div>
 
-              {/* Status Hint */}
-              <div className="text-xs font-bold uppercase tracking-wider flex items-center justify-center min-h-[24px]">
+              {/* Status Hint with clear states */}
+              <div className="text-xs font-bold uppercase tracking-wider flex items-center justify-center min-h-[28px]">
                 {gameState === GAME_STATE.SHOWING ? (
-                  <span className="flex items-center gap-1.5 text-amber-500 animate-pulse">
-                    <Eye className="w-4 h-4" />
-                    <span>Watch the Sequence...</span>
-                  </span>
+                  isPreparing ? (
+                    <span className="flex items-center gap-1.5 text-amber-700 dark:text-amber-400 font-bold bg-amber-50 dark:bg-amber-950/50 px-3 py-1 rounded-full border border-amber-200 dark:border-amber-800 animate-pulse">
+                      <Sparkles className="w-4 h-4" />
+                      <span>Get Ready...</span>
+                    </span>
+                  ) : (
+                    <span className="flex items-center gap-1.5 text-amber-700 dark:text-amber-400 font-bold">
+                      <Eye className="w-4 h-4" />
+                      <span>Watch the Sequence...</span>
+                    </span>
+                  )
                 ) : (
-                  <span className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-semibold">
+                  <span className="flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400 font-bold bg-emerald-50 dark:bg-emerald-950/50 px-3 py-1 rounded-full border border-emerald-200 dark:border-emerald-800">
                     <Sparkles className="w-4 h-4" />
                     <span>
                       Repeat: {userSequence.length} / {sequence.length}
@@ -204,9 +224,9 @@ export const MemoryGame: React.FC = () => {
                 )}
               </div>
 
-              {/* Glowing Grid Blocks */}
+              {/* Glowing Grid Blocks with Strong Contrast */}
               <div
-                className="grid gap-2.5 w-full max-w-xs sm:max-w-sm aspect-square p-3 rounded-3xl bg-slate-100 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 shadow-xl"
+                className="grid gap-2.5 w-full max-w-xs sm:max-w-sm aspect-square p-3 rounded-3xl bg-slate-200 dark:bg-slate-900 border-2 border-slate-300 dark:border-slate-800 shadow-xl"
                 style={{
                   gridTemplateColumns: `repeat(${gridSize}, minmax(0, 1fr))`,
                 }}
@@ -220,10 +240,10 @@ export const MemoryGame: React.FC = () => {
                       onClick={() => handleBlockClick(index)}
                       disabled={gameState !== GAME_STATE.WAITING}
                       className={cn(
-                        'rounded-2xl transition-all duration-150 aspect-square cursor-pointer border',
+                        'rounded-2xl transition-all duration-150 aspect-square cursor-pointer border-2',
                         isIlluminated
-                          ? 'bg-gradient-to-tr from-amber-400 to-orange-500 border-amber-300 shadow-lg shadow-amber-500/60 scale-105 ring-4 ring-amber-400/40'
-                          : 'bg-white dark:bg-slate-800/80 border-slate-200/80 dark:border-slate-700/80 hover:bg-slate-50 dark:hover:bg-slate-750 shadow-sm'
+                          ? 'bg-gradient-to-tr from-amber-400 to-orange-500 border-amber-200 shadow-xl shadow-amber-500/70 scale-105 ring-4 ring-amber-400/50 z-10'
+                          : 'bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 hover:border-amber-400 dark:hover:border-amber-500 hover:bg-amber-50/40 dark:hover:bg-slate-750 shadow-sm'
                       )}
                     />
                   );
@@ -241,15 +261,15 @@ export const MemoryGame: React.FC = () => {
               exit={{ opacity: 0, scale: 0.9 }}
               className="flex flex-col items-center text-center gap-6"
             >
-              <div className="flex items-center justify-center w-20 h-20 rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-500 border-2 border-emerald-400 shadow-lg shadow-emerald-500/20">
+              <div className="flex items-center justify-center w-20 h-20 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 border-2 border-emerald-400 shadow-lg shadow-emerald-500/20">
                 <Sparkles className="w-10 h-10" />
               </div>
 
               <div className="space-y-1">
-                <h3 className="text-3xl font-extrabold text-emerald-600 dark:text-emerald-400">
+                <h3 className="text-3xl font-black text-emerald-700 dark:text-emerald-400">
                   Level {level - 1} Cleared!
                 </h3>
-                <p className="text-sm text-slate-500 dark:text-slate-400">
+                <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">
                   Current Score: {score} pts
                 </p>
               </div>
@@ -276,25 +296,27 @@ export const MemoryGame: React.FC = () => {
               className="flex flex-col items-center text-center gap-6"
             >
               <div className="space-y-2">
-                <h3 className="text-3xl font-extrabold text-rose-500">Game Over</h3>
-                <p className="text-sm text-slate-500 dark:text-slate-400">
+                <h3 className="text-3xl font-black text-rose-600 dark:text-rose-500">Game Over</h3>
+                <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">
                   You reached Round {level} with a great memory performance!
                 </p>
               </div>
 
               <div className="flex items-center gap-4 justify-center">
-                <div className="flex flex-col items-center p-4 rounded-2xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 min-w-[120px]">
-                  <span className="text-3xl font-extrabold text-slate-700 dark:text-slate-300">
+                <div className="flex flex-col items-center p-4 rounded-2xl bg-white dark:bg-slate-800 border-2 border-slate-300 dark:border-slate-700 min-w-[120px] shadow-sm">
+                  <span className="text-3xl font-black text-slate-900 dark:text-slate-100">
                     <SlidingNumber value={level} />
                   </span>
-                  <span className="text-xs font-semibold text-slate-500">{t('level')}</span>
+                  <span className="text-xs font-bold text-slate-600 dark:text-slate-400 mt-1">
+                    {t('level')}
+                  </span>
                 </div>
 
-                <div className="flex flex-col items-center p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 min-w-[120px]">
-                  <span className="text-3xl font-extrabold text-amber-600 dark:text-amber-400">
+                <div className="flex flex-col items-center p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border-2 border-amber-300 dark:border-amber-800 min-w-[120px] shadow-sm">
+                  <span className="text-3xl font-black text-amber-700 dark:text-amber-400">
                     <SlidingNumber value={score} />
                   </span>
-                  <span className="text-xs font-semibold text-amber-700 dark:text-amber-300">
+                  <span className="text-xs font-bold text-amber-800 dark:text-amber-300 mt-1">
                     {t('Score')}
                   </span>
                 </div>

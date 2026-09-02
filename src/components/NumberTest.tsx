@@ -102,7 +102,7 @@ export const NumberTest: React.FC<Props> = () => {
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key >= '0' && e.key <= '9') {
-        handleDigitInput(parseInt(e.key, 10));
+        handleDigitInput(Number.parseInt(e.key, 10));
       } else if (e.key === 'Backspace') {
         handleDelete();
       }
@@ -126,7 +126,7 @@ export const NumberTest: React.FC<Props> = () => {
 
   return (
     <div className="w-full max-w-2xl mx-auto">
-      <GlowCard className="p-6 md:p-8">
+      <GlowCard className="p-6 md:p-8" glowColor="rgba(99, 102, 241, 0.2)">
         <AnimatePresence mode="wait">
           {/* 1. READY PHASE */}
           {phase === 'ready' && (
@@ -137,21 +137,21 @@ export const NumberTest: React.FC<Props> = () => {
               exit={{ opacity: 0, y: -10 }}
               className="flex flex-col items-center text-center gap-6"
             >
-              <div className="flex items-center justify-center w-16 h-16 rounded-3xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800">
+              <div className="flex items-center justify-center w-16 h-16 rounded-3xl bg-indigo-100 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-400 border-2 border-indigo-300 dark:border-indigo-800 shadow-sm">
                 <Zap className="w-8 h-8" />
               </div>
 
               <div className="space-y-2">
-                <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight">
+                <h2 className="text-2xl md:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
                   {t('NumberTest')}
                 </h2>
-                <p className="text-sm md:text-base text-slate-500 dark:text-slate-400 max-w-md">
+                <p className="text-sm md:text-base text-slate-700 dark:text-slate-300 font-medium max-w-md">
                   {t('Number_desc')}
                 </p>
               </div>
 
-              {/* Difficulty Selection Pills */}
-              <div className="w-full max-w-md bg-slate-100 dark:bg-slate-800/80 p-1.5 rounded-2xl border border-slate-200 dark:border-slate-700 flex justify-between gap-1">
+              {/* Difficulty Selection Pills with High Contrast */}
+              <div className="w-full max-w-md bg-slate-200/90 dark:bg-slate-800/80 p-1.5 rounded-2xl border border-slate-300 dark:border-slate-700 flex justify-between gap-1 shadow-inner">
                 {[
                   { label: t('easy'), val: 6 },
                   { label: t('medium'), val: 8 },
@@ -163,8 +163,8 @@ export const NumberTest: React.FC<Props> = () => {
                     className={cn(
                       'flex-1 py-2 text-xs md:text-sm font-bold rounded-xl transition-all cursor-pointer',
                       level === item.val
-                        ? 'bg-white dark:bg-indigo-600 text-indigo-600 dark:text-white shadow-sm'
-                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                        ? 'bg-indigo-600 text-white shadow-md'
+                        : 'text-slate-800 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white hover:bg-white/50'
                     )}
                   >
                     {item.label} ({item.val})
@@ -193,15 +193,15 @@ export const NumberTest: React.FC<Props> = () => {
               exit={{ opacity: 0, scale: 0.95 }}
               className="flex flex-col items-center justify-center min-h-[340px] text-center gap-6"
             >
-              <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-indigo-500 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/60 px-3 py-1.5 rounded-full border border-indigo-200/60 dark:border-indigo-800/60">
+              <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-indigo-700 dark:text-indigo-300 bg-indigo-100 dark:bg-indigo-950/70 px-3.5 py-1.5 rounded-full border-2 border-indigo-300 dark:border-indigo-800 shadow-sm">
                 <Sparkles className="w-3.5 h-3.5" />
                 <span>
                   {t('level')}: {currentIndex + 1} / {level}
                 </span>
               </div>
 
-              {/* Huge Flashing Digit Display */}
-              <div className="relative flex items-center justify-center w-40 h-40 md:w-48 md:h-48 rounded-3xl bg-gradient-to-tr from-indigo-500/10 via-purple-500/10 to-transparent border border-indigo-500/20 shadow-2xl backdrop-blur-md">
+              {/* High Contrast Flashing Digit Display Card */}
+              <div className="relative flex items-center justify-center w-40 h-40 md:w-48 md:h-48 rounded-3xl bg-slate-950 border-2 border-slate-300 dark:border-slate-700 shadow-2xl">
                 <AnimatePresence mode="wait">
                   <motion.span
                     key={currentIndex}
@@ -209,7 +209,7 @@ export const NumberTest: React.FC<Props> = () => {
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 1.2, y: -15 }}
                     transition={{ duration: 0.2 }}
-                    className="text-7xl md:text-8xl font-black tracking-tighter bg-gradient-to-b from-indigo-600 to-purple-600 dark:from-indigo-400 dark:to-purple-300 bg-clip-text text-transparent select-none font-mono"
+                    className="text-7xl md:text-8xl font-black tracking-tighter text-white drop-shadow-[0_0_25px_rgba(99,102,241,0.8)] select-none font-mono"
                   >
                     {numbers[currentIndex] ?? '-'}
                   </motion.span>
@@ -217,7 +217,7 @@ export const NumberTest: React.FC<Props> = () => {
               </div>
 
               {/* Progress Bar */}
-              <div className="w-full max-w-xs bg-slate-200 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
+              <div className="w-full max-w-xs bg-slate-300 dark:bg-slate-800 h-2.5 rounded-full overflow-hidden border border-slate-300/80">
                 <motion.div
                   className="bg-gradient-to-r from-indigo-500 to-purple-600 h-full rounded-full"
                   style={{ width: `${timerProgress}%` }}
@@ -237,26 +237,29 @@ export const NumberTest: React.FC<Props> = () => {
               className="flex flex-col items-center text-center gap-6"
             >
               <div className="space-y-1">
-                <h3 className="text-xl md:text-2xl font-bold">{t('inputNum')}</h3>
-                <p className="text-xs md:text-sm text-slate-400">
+                <h3 className="text-xl md:text-2xl font-black text-slate-900 dark:text-white">
+                  {t('inputNum')}
+                </h3>
+                <p className="text-xs md:text-sm font-semibold text-slate-600 dark:text-slate-400">
                   {userInputArray.length} / {numbers.length}
                 </p>
               </div>
 
-              {/* Entered Digits Display Slots */}
+              {/* Entered Digits Display Slots with Crisp Contrast */}
               <div className="flex flex-wrap justify-center gap-2 max-w-md min-h-[52px]">
                 {numbers.map((_, i) => {
                   const entered = userInputArray[i];
+                  const isCurrent = i === userInputArray.length;
                   return (
                     <div
                       key={i}
                       className={cn(
-                        'w-10 h-12 md:w-11 md:h-14 rounded-xl border flex items-center justify-center font-mono text-xl font-bold transition-all',
+                        'w-10 h-12 md:w-11 md:h-14 rounded-xl border-2 flex items-center justify-center font-mono text-xl font-black transition-all',
                         entered !== undefined
-                          ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 shadow-sm'
-                          : i === userInputArray.length
-                            ? 'border-indigo-400 dark:border-indigo-500 ring-2 ring-indigo-500/20 bg-slate-50 dark:bg-slate-800/60 animate-pulse'
-                            : 'border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 text-slate-400'
+                          ? 'border-indigo-600 bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 shadow-sm'
+                          : isCurrent
+                            ? 'border-indigo-600 dark:border-indigo-400 ring-4 ring-indigo-500/25 bg-white dark:bg-slate-800 text-slate-900'
+                            : 'border-slate-300 dark:border-slate-700 bg-slate-100/90 dark:bg-slate-900/60 text-slate-400'
                       )}
                     >
                       {entered !== undefined ? entered : ''}
@@ -265,7 +268,7 @@ export const NumberTest: React.FC<Props> = () => {
                 })}
               </div>
 
-              {/* Tactile Virtual Keypad */}
+              {/* Tactile Virtual Keypad with Crisp Contrast */}
               <div className="grid grid-cols-3 gap-2.5 w-full max-w-xs mt-2">
                 {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((digit) => (
                   <TactileButton
@@ -273,7 +276,7 @@ export const NumberTest: React.FC<Props> = () => {
                     variant="secondary"
                     size="md"
                     onClick={() => handleDigitInput(digit)}
-                    className="h-13 text-xl font-bold font-mono"
+                    className="h-13 text-xl font-black font-mono bg-white dark:bg-slate-800 border-2 border-slate-300 dark:border-slate-700 shadow-sm hover:bg-slate-100"
                   >
                     {digit}
                   </TactileButton>
@@ -283,22 +286,22 @@ export const NumberTest: React.FC<Props> = () => {
                   variant="outline"
                   size="md"
                   onClick={handleDelete}
-                  className="h-13"
+                  className="h-13 border-2 border-slate-300 dark:border-slate-700"
                   aria-label="Delete"
                 >
-                  <Delete className="w-5 h-5" />
+                  <Delete className="w-5 h-5 text-slate-700 dark:text-slate-300" />
                 </TactileButton>
 
                 <TactileButton
                   variant="secondary"
                   size="md"
                   onClick={() => handleDigitInput(0)}
-                  className="h-13 text-xl font-bold font-mono"
+                  className="h-13 text-xl font-black font-mono bg-white dark:bg-slate-800 border-2 border-slate-300 dark:border-slate-700 shadow-sm hover:bg-slate-100"
                 >
                   0
                 </TactileButton>
 
-                <div className="h-13 flex items-center justify-center gap-1.5 text-xs font-semibold text-slate-500 dark:text-slate-400">
+                <div className="h-13 flex items-center justify-center gap-1.5 text-xs font-bold text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700">
                   <Keyboard className="w-3.5 h-3.5" />
                   <span>Type</span>
                 </div>
@@ -316,46 +319,48 @@ export const NumberTest: React.FC<Props> = () => {
               className="flex flex-col items-center text-center gap-6"
             >
               <div className="space-y-1">
-                <h3 className="text-2xl font-extrabold">{t('StoopTest_Result')}</h3>
-                <p className="text-sm text-slate-500 dark:text-slate-400">
+                <h3 className="text-2xl font-black text-slate-900 dark:text-white">
+                  {t('StoopTest_Result')}
+                </h3>
+                <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">
                   {scoreStats.accuracy >= 80
                     ? '🌟 Excellent Memory Span!'
                     : 'Keep training every day!'}
                 </p>
               </div>
 
-              {/* Accuracy Badge */}
-              <div className="flex items-center gap-6 justify-center">
-                <div className="flex flex-col items-center p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800">
-                  <span className="text-3xl font-extrabold text-emerald-600 dark:text-emerald-400">
+              {/* Accuracy Badges with High Contrast */}
+              <div className="flex items-center gap-4 md:gap-6 justify-center">
+                <div className="flex flex-col items-center p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border-2 border-emerald-300 dark:border-emerald-800 shadow-sm min-w-[100px]">
+                  <span className="text-3xl font-black text-emerald-700 dark:text-emerald-400">
                     <SlidingNumber value={scoreStats.correct} />
                   </span>
-                  <span className="text-xs font-semibold text-emerald-700 dark:text-emerald-300">
+                  <span className="text-xs font-bold text-emerald-800 dark:text-emerald-300 mt-1">
                     {t('correct_Ans')}
                   </span>
                 </div>
 
-                <div className="flex flex-col items-center p-4 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800">
-                  <span className="text-3xl font-extrabold text-rose-600 dark:text-rose-400">
+                <div className="flex flex-col items-center p-4 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border-2 border-rose-300 dark:border-rose-800 shadow-sm min-w-[100px]">
+                  <span className="text-3xl font-black text-rose-700 dark:text-rose-400">
                     <SlidingNumber value={scoreStats.wrong} />
                   </span>
-                  <span className="text-xs font-semibold text-rose-700 dark:text-rose-300">
+                  <span className="text-xs font-bold text-rose-800 dark:text-rose-300 mt-1">
                     {t('wrong_Ans')}
                   </span>
                 </div>
 
-                <div className="flex flex-col items-center p-4 rounded-2xl bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800">
-                  <span className="text-3xl font-extrabold text-indigo-600 dark:text-indigo-400">
+                <div className="flex flex-col items-center p-4 rounded-2xl bg-indigo-50 dark:bg-indigo-950/40 border-2 border-indigo-300 dark:border-indigo-800 shadow-sm min-w-[100px]">
+                  <span className="text-3xl font-black text-indigo-700 dark:text-indigo-400">
                     <SlidingNumber value={scoreStats.accuracy} />%
                   </span>
-                  <span className="text-xs font-semibold text-indigo-700 dark:text-indigo-300">
+                  <span className="text-xs font-bold text-indigo-800 dark:text-indigo-300 mt-1">
                     {t('Score')}
                   </span>
                 </div>
               </div>
 
               {/* Digit-by-Digit Breakdown */}
-              <div className="w-full max-w-lg p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700">
+              <div className="w-full max-w-lg p-4 rounded-2xl bg-white dark:bg-slate-800/60 border-2 border-slate-300 dark:border-slate-700 shadow-sm">
                 <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
                   {numbers.map((num, i) => {
                     const isMatch = num === userInputArray[i];
@@ -363,10 +368,10 @@ export const NumberTest: React.FC<Props> = () => {
                       <div
                         key={i}
                         className={cn(
-                          'flex items-center justify-between p-2 rounded-xl text-xs font-mono font-bold border',
+                          'flex items-center justify-between p-2 rounded-xl text-xs font-mono font-black border-2',
                           isMatch
-                            ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-600 dark:text-emerald-400'
-                            : 'bg-rose-500/10 border-rose-500/30 text-rose-600 dark:text-rose-400'
+                            ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-400 text-emerald-800 dark:text-emerald-300'
+                            : 'bg-rose-50 dark:bg-rose-950/40 border-rose-400 text-rose-800 dark:text-rose-300'
                         )}
                       >
                         <span>{num}</span>

@@ -20,14 +20,14 @@ export const GlowCard: React.FC<GlowCardProps> = ({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
       className={cn(
-        'relative rounded-2xl border border-slate-200/80 dark:border-slate-800/80',
-        'bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl shadow-xl shadow-indigo-500/5',
+        'relative rounded-3xl border border-slate-300 dark:border-slate-800/80',
+        'bg-white dark:bg-slate-900/90 backdrop-blur-xl shadow-xl shadow-slate-200/60 dark:shadow-indigo-500/5',
         'transition-all duration-300 hover:shadow-2xl hover:shadow-indigo-500/10',
         'overflow-hidden',
         className
       )}
       style={{
-        boxShadow: `0 10px 30px -10px ${glowColor}, 0 0 0 1px rgba(255, 255, 255, 0.1) inset`,
+        boxShadow: `0 10px 30px -10px ${glowColor}, 0 0 0 1px rgba(0, 0, 0, 0.04)`,
       }}
       {...(props as any)}
     >

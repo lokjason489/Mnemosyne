@@ -24,8 +24,8 @@ export const AnimatedTabs: React.FC<AnimatedTabsProps> = ({
   return (
     <div
       className={cn(
-        'relative flex items-center p-1.5 rounded-2xl bg-slate-100/90 dark:bg-slate-800/80',
-        'border border-slate-200/60 dark:border-slate-700/60 backdrop-blur-md overflow-x-auto no-scrollbar',
+        'relative flex items-center p-1.5 rounded-2xl bg-slate-200/90 dark:bg-slate-800/80',
+        'border border-slate-300 dark:border-slate-700/60 backdrop-blur-md overflow-x-auto no-scrollbar shadow-inner',
         className
       )}
     >
@@ -36,11 +36,11 @@ export const AnimatedTabs: React.FC<AnimatedTabsProps> = ({
             key={tab.id}
             onClick={() => onChange(tab.id)}
             className={cn(
-              'relative z-10 flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold rounded-xl',
+              'relative z-10 flex items-center justify-center gap-2 px-4 py-2 text-sm rounded-xl',
               'transition-colors duration-200 select-none whitespace-nowrap outline-none cursor-pointer',
               isActive
-                ? 'text-indigo-600 dark:text-white'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+                ? 'text-indigo-700 dark:text-white font-bold'
+                : 'text-slate-700 dark:text-slate-300 hover:text-slate-950 dark:hover:text-slate-100 font-semibold'
             )}
           >
             {tab.icon && <span className="text-base">{tab.icon}</span>}
@@ -49,7 +49,7 @@ export const AnimatedTabs: React.FC<AnimatedTabsProps> = ({
               <motion.div
                 layoutId="active-pill"
                 transition={{ type: 'spring', stiffness: 380, damping: 30 }}
-                className="absolute inset-0 z-[-1] rounded-xl bg-white dark:bg-indigo-600/90 shadow-md shadow-slate-900/5 dark:shadow-indigo-500/20"
+                className="absolute inset-0 z-[-1] rounded-xl bg-white dark:bg-indigo-600 shadow-sm border border-slate-300/80 dark:border-transparent"
               />
             )}
           </button>
