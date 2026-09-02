@@ -1,33 +1,22 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useTranslation } from 'react-i18next';
-import { motion, AnimatePresence } from 'motion/react';
-import {
-  CheckCircle2,
-  XCircle,
-  Play,
-  RotateCcw,
-  Sparkles,
-  Delete,
-  Send,
-  Zap,
-} from 'lucide-react';
 import confetti from 'canvas-confetti';
-import { GlowCard } from './ui/GlowCard';
-import { TactileButton } from './ui/TactileButton';
-import { SlidingNumber } from './ui/SlidingNumber';
+import { Delete, Keyboard, Play, RotateCcw, Sparkles, Zap } from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { cn } from '../utils/cn';
+import { GlowCard } from './ui/GlowCard';
+import { SlidingNumber } from './ui/SlidingNumber';
+import { TactileButton } from './ui/TactileButton';
 
 interface Props {
-  onClose: React.Dispatch<React.SetStateAction<number>>;
+  onClose?: React.Dispatch<React.SetStateAction<number>>;
 }
 
-export const NumberTest: React.FC<Props> = ({ onClose }) => {
+export const NumberTest: React.FC<Props> = () => {
   const { t } = useTranslation();
   const [level, setLevel] = useState<number>(8); // length of number sequence
   const [numbers, setNumbers] = useState<number[]>([]);
-  const [currentInput, setCurrentInput] = useState('');
   const [userInputArray, setUserInputArray] = useState<number[]>([]);
-  const [inputError, setInputError] = useState(false);
 
   // Phases: 'ready' | 'memorizing' | 'input' | 'result'
   const [phase, setPhase] = useState<'ready' | 'memorizing' | 'input' | 'result'>('ready');
@@ -48,7 +37,6 @@ export const NumberTest: React.FC<Props> = ({ onClose }) => {
     }
     setNumbers(seq);
     setUserInputArray([]);
-    setCurrentInput('');
     setCurrentIndex(0);
     setTimerProgress(0);
     setPhase('memorizing');
@@ -78,35 +66,35 @@ export const NumberTest: React.FC<Props> = ({ onClose }) => {
   }, [phase, level]);
 
   // Handle single digit input
-  const handleDigitInput = (digit: number) => {
-    if (phase !== 'input') return;
-    setInputError(false);
+  const handleDigitInput = useCallback(
+    (digit: number) => {
+      if (phase !== 'input') return;
 
-    const nextArray = [...userInputArray, digit];
-    setUserInputArray(nextArray);
+      setUserInputArray((prev) => {
+        const nextArray = [...prev, digit];
+        if (nextArray.length === numbers.length) {
+          let correct = 0;
+          for (let i = 0; i < numbers.length; i++) {
+            if (numbers[i] === nextArray[i]) correct++;
+          }
+          if (correct / numbers.length >= 0.7) {
+            confetti({
+              particleCount: 80,
+              spread: 70,
+              origin: { y: 0.6 },
+            });
+          }
+          setPhase('result');
+        }
+        return nextArray;
+      });
+    },
+    [phase, numbers]
+  );
 
-    if (nextArray.length === numbers.length) {
-      // Calculate score and fire confetti if high accuracy
-      let correct = 0;
-      for (let i = 0; i < numbers.length; i++) {
-        if (numbers[i] === nextArray[i]) correct++;
-      }
-      if (correct / numbers.length >= 0.7) {
-        confetti({
-          particleCount: 80,
-          spread: 70,
-          origin: { y: 0.6 },
-        });
-      }
-      setPhase('result');
-    }
-  };
-
-  const handleDelete = () => {
-    if (userInputArray.length > 0) {
-      setUserInputArray(userInputArray.slice(0, -1));
-    }
-  };
+  const handleDelete = useCallback(() => {
+    setUserInputArray((prev) => (prev.length > 0 ? prev.slice(0, -1) : prev));
+  }, []);
 
   // Physical keyboard support
   useEffect(() => {
@@ -122,7 +110,7 @@ export const NumberTest: React.FC<Props> = ({ onClose }) => {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [phase, userInputArray, numbers.length]);
+  }, [phase, handleDigitInput, handleDelete]);
 
   // Score statistics
   const scoreStats = React.useMemo(() => {
@@ -207,7 +195,9 @@ export const NumberTest: React.FC<Props> = ({ onClose }) => {
             >
               <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-indigo-500 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/60 px-3 py-1.5 rounded-full border border-indigo-200/60 dark:border-indigo-800/60">
                 <Sparkles className="w-3.5 h-3.5" />
-                <span>{t('level')}: {currentIndex + 1} / {level}</span>
+                <span>
+                  {t('level')}: {currentIndex + 1} / {level}
+                </span>
               </div>
 
               {/* Huge Flashing Digit Display */}
@@ -265,8 +255,8 @@ export const NumberTest: React.FC<Props> = ({ onClose }) => {
                         entered !== undefined
                           ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 shadow-sm'
                           : i === userInputArray.length
-                          ? 'border-indigo-400 dark:border-indigo-500 ring-2 ring-indigo-500/20 bg-slate-50 dark:bg-slate-800/60 animate-pulse'
-                          : 'border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 text-slate-400'
+                            ? 'border-indigo-400 dark:border-indigo-500 ring-2 ring-indigo-500/20 bg-slate-50 dark:bg-slate-800/60 animate-pulse'
+                            : 'border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 text-slate-400'
                       )}
                     >
                       {entered !== undefined ? entered : ''}
@@ -308,8 +298,9 @@ export const NumberTest: React.FC<Props> = ({ onClose }) => {
                   0
                 </TactileButton>
 
-                <div className="h-13 flex items-center justify-center text-xs font-semibold text-slate-400">
-                  ⌨️ Type
+                <div className="h-13 flex items-center justify-center gap-1.5 text-xs font-semibold text-slate-500 dark:text-slate-400">
+                  <Keyboard className="w-3.5 h-3.5" />
+                  <span>Type</span>
                 </div>
               </div>
             </motion.div>
@@ -327,7 +318,9 @@ export const NumberTest: React.FC<Props> = ({ onClose }) => {
               <div className="space-y-1">
                 <h3 className="text-2xl font-extrabold">{t('StoopTest_Result')}</h3>
                 <p className="text-sm text-slate-500 dark:text-slate-400">
-                  {scoreStats.accuracy >= 80 ? '🌟 Excellent Memory Span!' : 'Keep training every day!'}
+                  {scoreStats.accuracy >= 80
+                    ? '🌟 Excellent Memory Span!'
+                    : 'Keep training every day!'}
                 </p>
               </div>
 

@@ -1,24 +1,15 @@
-import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
-import { useTranslation } from 'react-i18next';
-import { motion, AnimatePresence } from 'motion/react';
-import {
-  Palette,
-  Play,
-  RotateCcw,
-  Sparkles,
-  Timer,
-  CheckCircle2,
-  XCircle,
-  Zap,
-} from 'lucide-react';
 import confetti from 'canvas-confetti';
+import { Palette, Play, RotateCcw, Sparkles, Timer, Zap } from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
+import type React from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { GlowCard } from './ui/GlowCard';
-import { TactileButton } from './ui/TactileButton';
 import { SlidingNumber } from './ui/SlidingNumber';
-import { cn } from '../utils/cn';
+import { TactileButton } from './ui/TactileButton';
 
 interface Props {
-  onClose: React.Dispatch<React.SetStateAction<number>>;
+  onClose?: React.Dispatch<React.SetStateAction<number>>;
 }
 
 interface ColorOption {
@@ -28,7 +19,7 @@ interface ColorOption {
   textHex: string;
 }
 
-export const StoopTest: React.FC<Props> = ({ onClose }) => {
+export const StoopTest: React.FC<Props> = () => {
   const { t } = useTranslation();
 
   const colors: ColorOption[] = useMemo(
@@ -46,9 +37,6 @@ export const StoopTest: React.FC<Props> = ({ onClose }) => {
   );
 
   const TOTAL_ROUNDS = 10;
-
-  // Mode: 'normal' | 'hard' (in normal: match font color; in hard: sometimes match word text)
-  const [mode, setMode] = useState<'normal' | 'hard'>('normal');
 
   // Phases: 'ready' | 'playing' | 'result'
   const [phase, setPhase] = useState<'ready' | 'playing' | 'result'>('ready');
@@ -165,9 +153,7 @@ export const StoopTest: React.FC<Props> = ({ onClose }) => {
                   <Zap className="w-4 h-4 text-amber-500" />
                   <span>{t('Stoop_desc')}</span>
                 </p>
-                <p className="opacity-80 leading-relaxed text-xs">
-                  {t('Stoop_long_desc')}
-                </p>
+                <p className="opacity-80 leading-relaxed text-xs">{t('Stoop_long_desc')}</p>
               </div>
 
               <TactileButton
@@ -177,7 +163,9 @@ export const StoopTest: React.FC<Props> = ({ onClose }) => {
                 className="w-full max-w-xs mt-2"
               >
                 <Play className="w-5 h-5 fill-current" />
-                <span>{t('start')} ({TOTAL_ROUNDS} {t('level')})</span>
+                <span>
+                  {t('start')} ({TOTAL_ROUNDS} {t('level')})
+                </span>
               </TactileButton>
             </motion.div>
           )}
@@ -195,7 +183,9 @@ export const StoopTest: React.FC<Props> = ({ onClose }) => {
               <div className="flex items-center justify-between w-full max-w-md px-2">
                 <div className="flex items-center gap-1.5 text-xs font-bold text-pink-600 dark:text-pink-400 bg-pink-50 dark:bg-pink-950/60 px-3 py-1.5 rounded-full border border-pink-200 dark:border-pink-800">
                   <Sparkles className="w-3.5 h-3.5" />
-                  <span>{t('level')}: {round} / {TOTAL_ROUNDS}</span>
+                  <span>
+                    {t('level')}: {round} / {TOTAL_ROUNDS}
+                  </span>
                 </div>
 
                 <div className="flex items-center gap-1.5 text-xs font-mono font-bold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-700">
@@ -266,7 +256,9 @@ export const StoopTest: React.FC<Props> = ({ onClose }) => {
               <div className="space-y-1">
                 <h3 className="text-2xl font-extrabold">{t('StoopTest_Result')}</h3>
                 <p className="text-sm text-slate-500 dark:text-slate-400">
-                  {score >= 8 ? '⚡ Exceptional Cognitive Inhabitation!' : 'Great training session!'}
+                  {score >= 8
+                    ? '⚡ Exceptional Cognitive Inhabitation!'
+                    : 'Great training session!'}
                 </p>
               </div>
 

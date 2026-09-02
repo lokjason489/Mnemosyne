@@ -1,20 +1,13 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { useTranslation } from 'react-i18next';
-import { motion, AnimatePresence } from 'motion/react';
-import {
-  Grid3X3,
-  Play,
-  RotateCcw,
-  Sparkles,
-  Trophy,
-  Flame,
-  ArrowRight,
-} from 'lucide-react';
 import confetti from 'canvas-confetti';
-import { GlowCard } from './ui/GlowCard';
-import { TactileButton } from './ui/TactileButton';
-import { SlidingNumber } from './ui/SlidingNumber';
+import { ArrowRight, Eye, Flame, Grid3X3, Play, RotateCcw, Sparkles, Trophy } from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
+import type React from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { cn } from '../utils/cn';
+import { GlowCard } from './ui/GlowCard';
+import { SlidingNumber } from './ui/SlidingNumber';
+import { TactileButton } from './ui/TactileButton';
 
 const GAME_STATE = {
   START: 'START',
@@ -25,7 +18,7 @@ const GAME_STATE = {
   GAME_OVER: 'GAME_OVER',
 } as const;
 
-type GameStateType = typeof GAME_STATE[keyof typeof GAME_STATE];
+type GameStateType = (typeof GAME_STATE)[keyof typeof GAME_STATE];
 
 export const MemoryGame: React.FC = () => {
   const { t } = useTranslation();
@@ -181,22 +174,32 @@ export const MemoryGame: React.FC = () => {
               <div className="flex items-center justify-between w-full max-w-sm px-2">
                 <div className="flex items-center gap-1.5 text-xs font-bold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/60 px-3 py-1.5 rounded-full border border-amber-200 dark:border-amber-800">
                   <Flame className="w-3.5 h-3.5" />
-                  <span>{t('level')} <SlidingNumber value={level} /></span>
+                  <span>
+                    {t('level')} <SlidingNumber value={level} />
+                  </span>
                 </div>
 
                 <div className="flex items-center gap-1.5 text-xs font-mono font-bold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-700">
                   <Trophy className="w-3.5 h-3.5 text-amber-500" />
-                  <span>{t('Score')}: <SlidingNumber value={score} /></span>
+                  <span>
+                    {t('Score')}: <SlidingNumber value={score} />
+                  </span>
                 </div>
               </div>
 
               {/* Status Hint */}
-              <div className="text-xs font-bold uppercase tracking-wider">
+              <div className="text-xs font-bold uppercase tracking-wider flex items-center justify-center min-h-[24px]">
                 {gameState === GAME_STATE.SHOWING ? (
-                  <span className="text-amber-500 animate-pulse">👀 Watch the Sequence...</span>
+                  <span className="flex items-center gap-1.5 text-amber-500 animate-pulse">
+                    <Eye className="w-4 h-4" />
+                    <span>Watch the Sequence...</span>
+                  </span>
                 ) : (
-                  <span className="text-emerald-500 font-semibold">
-                    👉 Repeat: {userSequence.length} / {sequence.length}
+                  <span className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-semibold">
+                    <Sparkles className="w-4 h-4" />
+                    <span>
+                      Repeat: {userSequence.length} / {sequence.length}
+                    </span>
                   </span>
                 )}
               </div>
@@ -238,7 +241,7 @@ export const MemoryGame: React.FC = () => {
               exit={{ opacity: 0, scale: 0.9 }}
               className="flex flex-col items-center text-center gap-6"
             >
-              <div className="flex items-center justify-center w-20 h-20 rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-500 border-2 border-emerald-400 animate-bounce">
+              <div className="flex items-center justify-center w-20 h-20 rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-500 border-2 border-emerald-400 shadow-lg shadow-emerald-500/20">
                 <Sparkles className="w-10 h-10" />
               </div>
 
@@ -273,9 +276,7 @@ export const MemoryGame: React.FC = () => {
               className="flex flex-col items-center text-center gap-6"
             >
               <div className="space-y-2">
-                <h3 className="text-3xl font-extrabold text-rose-500">
-                  Game Over
-                </h3>
+                <h3 className="text-3xl font-extrabold text-rose-500">Game Over</h3>
                 <p className="text-sm text-slate-500 dark:text-slate-400">
                   You reached Round {level} with a great memory performance!
                 </p>
@@ -286,9 +287,7 @@ export const MemoryGame: React.FC = () => {
                   <span className="text-3xl font-extrabold text-slate-700 dark:text-slate-300">
                     <SlidingNumber value={level} />
                   </span>
-                  <span className="text-xs font-semibold text-slate-500">
-                    {t('level')}
-                  </span>
+                  <span className="text-xs font-semibold text-slate-500">{t('level')}</span>
                 </div>
 
                 <div className="flex flex-col items-center p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 min-w-[120px]">

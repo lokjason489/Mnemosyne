@@ -1,5 +1,5 @@
-import React from 'react';
 import { motion } from 'motion/react';
+import type React from 'react';
 import { cn } from '../../utils/cn';
 
 interface GlowCardProps extends React.HTMLAttributes<HTMLDivElement> {

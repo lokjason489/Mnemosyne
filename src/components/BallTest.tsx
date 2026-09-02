@@ -1,27 +1,38 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { useTranslation } from 'react-i18next';
-import { motion, AnimatePresence } from 'motion/react';
-import {
-  Eye,
-  Play,
-  RotateCcw,
-  Sparkles,
-  CheckCircle2,
-  AlertCircle,
-  Plus,
-  Minus,
-} from 'lucide-react';
 import confetti from 'canvas-confetti';
-import { GlowCard } from './ui/GlowCard';
-import { TactileButton } from './ui/TactileButton';
-import { SlidingNumber } from './ui/SlidingNumber';
+import { Eye, Minus, Play, Plus, RotateCcw, Sparkles } from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
+import type React from 'react';
+import { useCallback, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { cn } from '../utils/cn';
+import { GlowCard } from './ui/GlowCard';
+import { SlidingNumber } from './ui/SlidingNumber';
+import { TactileButton } from './ui/TactileButton';
 
 interface Props {
-  onClose: React.Dispatch<React.SetStateAction<number>>;
+  onClose?: React.Dispatch<React.SetStateAction<number>>;
 }
 
-export const BallTest: React.FC<Props> = ({ onClose }) => {
+const getRandomInt = (min: number, max: number) => {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+};
+
+const isColliding = (
+  x: number,
+  y: number,
+  radius: number,
+  balls: { x: number; y: number; radius: number }[]
+) => {
+  for (const b of balls) {
+    const dist = Math.sqrt((x - b.x) ** 2 + (y - b.y) ** 2);
+    if (dist < radius + b.radius + 8) {
+      return true;
+    }
+  }
+  return false;
+};
+
+export const BallTest: React.FC<Props> = () => {
   const { t } = useTranslation();
 
   // Settings: [minBalls, maxBalls]
@@ -34,25 +45,6 @@ export const BallTest: React.FC<Props> = ({ onClose }) => {
   const [timerProgress, setTimerProgress] = useState(100);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
-
-  const getRandomInt = (min: number, max: number) => {
-    return Math.floor(Math.random() * (max - min + 1)) + min;
-  };
-
-  const isColliding = (
-    x: number,
-    y: number,
-    radius: number,
-    balls: { x: number; y: number; radius: number }[]
-  ) => {
-    for (const b of balls) {
-      const dist = Math.sqrt((x - b.x) ** 2 + (y - b.y) ** 2);
-      if (dist < radius + b.radius + 8) {
-        return true;
-      }
-    }
-    return false;
-  };
 
   const startTest = useCallback(() => {
     const targetCount = getRandomInt(ballRange[0], ballRange[1]);
@@ -231,12 +223,7 @@ export const BallTest: React.FC<Props> = ({ onClose }) => {
 
               {/* Canvas Frame */}
               <div className="relative rounded-3xl overflow-hidden border-2 border-emerald-500/30 shadow-2xl bg-slate-950/90 w-full max-w-lg aspect-video flex items-center justify-center">
-                <canvas
-                  ref={canvasRef}
-                  width={500}
-                  height={280}
-                  className="w-full h-full block"
-                />
+                <canvas ref={canvasRef} width={500} height={280} className="w-full h-full block" />
               </div>
 
               {/* Countdown Bar */}
@@ -328,7 +315,9 @@ export const BallTest: React.FC<Props> = ({ onClose }) => {
                   {diff === 0 ? '🎉 Perfect Count!' : diff <= 2 ? '⚡ Very Close!' : 'Good Effort!'}
                 </h3>
                 <p className="text-sm text-slate-500 dark:text-slate-400">
-                  {diff === 0 ? 'Your spatial working memory is spot on.' : `Off by only ${diff} balls.`}
+                  {diff === 0
+                    ? 'Your spatial working memory is spot on.'
+                    : `Off by only ${diff} balls.`}
                 </p>
               </div>
 

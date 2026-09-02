@@ -1,20 +1,11 @@
-import React, { useState, useMemo, useRef, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { CssBaseline } from '@mui/material';
-import { motion, AnimatePresence } from 'motion/react';
-import {
-  Brain,
-  Hash,
-  Eye,
-  Palette,
-  Grid3X3,
-  Sun,
-  Moon,
-  Globe,
-  ChevronDown,
-} from 'lucide-react';
-import { StoopTest, NumberTest, BallTest, MemoryGame } from '../../components';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { Brain, ChevronDown, Eye, Globe, Grid3X3, Hash, Moon, Palette, Sun } from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
+import type React from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { BallTest, MemoryGame, NumberTest, StoopTest } from '../../components';
 import { AnimatedTabs, type TabItem } from '../../components/ui/AnimatedTabs';
 import { cn } from '../../utils/cn';
 
@@ -38,9 +29,9 @@ export const HomePage: React.FC = () => {
 
   const languageList = useMemo(
     () => [
-      { label: '繁體中文', value: 'tc', flag: '🇹🇼' },
-      { label: '简体中文', value: 'sc', flag: '🇨🇳' },
-      { label: 'English', value: 'en', flag: '🇺🇸' },
+      { label: '繁體中文', value: 'tc', code: 'TC' },
+      { label: '简体中文', value: 'sc', code: 'SC' },
+      { label: 'English', value: 'en', code: 'EN' },
     ],
     []
   );
@@ -226,7 +217,9 @@ export const HomePage: React.FC = () => {
                   aria-label="Change Language"
                 >
                   <Globe className="w-3.5 h-3.5 text-indigo-500" />
-                  <span className="hidden sm:inline">{currentLangObj.flag}</span>
+                  <span className="hidden sm:inline px-1 py-0.5 text-[9px] font-bold rounded bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200">
+                    {currentLangObj.code}
+                  </span>
                   <span>{currentLangObj.label}</span>
                   <ChevronDown
                     className={cn(
@@ -261,7 +254,9 @@ export const HomePage: React.FC = () => {
                           )}
                         >
                           <span className="flex items-center gap-2">
-                            <span>{item.flag}</span>
+                            <span className="px-1 py-0.5 text-[9px] font-bold rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+                              {item.code}
+                            </span>
                             <span>{item.label}</span>
                           </span>
                         </button>
@@ -309,11 +304,6 @@ export const HomePage: React.FC = () => {
             </motion.div>
           </AnimatePresence>
         </main>
-
-        {/* Subtle Footer */}
-        <footer className="relative z-10 py-4 text-center text-xs font-medium text-slate-400 dark:text-slate-600">
-          <p>Mnemosyne Cognitive Training Lab • Built with React 19, Vite & Motion</p>
-        </footer>
       </div>
     </ThemeProvider>
   );

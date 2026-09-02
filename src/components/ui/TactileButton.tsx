@@ -1,5 +1,5 @@
-import React from 'react';
-import { motion, type HTMLMotionProps } from 'motion/react';
+import { type HTMLMotionProps, motion } from 'motion/react';
+import type React from 'react';
 import { cn } from '../../utils/cn';
 
 interface TactileButtonProps extends HTMLMotionProps<'button'> {
