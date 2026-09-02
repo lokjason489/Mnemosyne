@@ -105,7 +105,7 @@ export const BallTest: React.FC<Props> = () => {
   useEffect(() => {
     if (phase !== 'showing') return;
 
-    const duration = 1600; // 1.6 seconds for clear visual perception
+    const duration = 1000; // 1.0 second
     const startTime = Date.now();
 
     const timer = setInterval(() => {
