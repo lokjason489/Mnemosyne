@@ -1,65 +1,46 @@
 {
   "name": "mnemosyne",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
-  "dependencies": {
-    "@emotion/react": "11.11.4",
-    "@emotion/styled": "11.11.5",
-    "@mui/icons-material": "5.15.20",
-    "@mui/material": "5.15.20",
-    "@testing-library/jest-dom": "5.17.0",
-    "@testing-library/react": "13.4.0",
-    "@testing-library/user-event": "13.5.0",
-    "@types/jest": "27.5.2",
-    "@types/node": "16.18.101",
-    "@types/react": "18.3.3",
-    "@types/react-dom": "18.3.0",
-    "firebase": "9.23.0",
-    "i18next": "23.11.5",
-    "react": "18.2.0",
-    "react-dom": "18.2.0",
-    "react-i18next": "13.5.0",
-    "react-scripts": "5.0.1",
-    "typescript": "4.9.5",
-    "web-vitals": "2.1.4"
-  },
+  "type": "module",
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "dev": "vite",
+    "start": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "test": "vitest run"
   },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
+  "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
+    "@mui/icons-material": "^9.4.0",
+    "@mui/material": "^9.4.0",
+    "@tailwindcss/vite": "^4.3.3",
+    "canvas-confetti": "^1.9.4",
+    "clsx": "^2.1.1",
+    "firebase": "^12.18.0",
+    "i18next": "^26.4.1",
+    "lucide-react": "^1.39.0",
+    "motion": "^13.1.1",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "react-i18next": "^17.0.13",
+    "tailwind-merge": "^3.6.0",
+    "tailwindcss": "^4.3.3",
+    "web-vitals": "^4.2.4"
   },
   "devDependencies": {
-    "autoprefixer": "10.4.19"
-  },
-  "pnpm": {
-    "overrides": {
-      "http-proxy-middleware": "^2.0.8",
-      "webpack-dev-server": "^5.2.1",
-      "brace-expansion@2": "^2.0.2",
-      "on-headers": "^1.1.0",
-      "form-data": "^3.0.4"
-    },
-    "patchedDependencies": {
-      "react-scripts@5.0.1": "patches/react-scripts@5.0.1.patch"
-    }
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.3.0",
+    "@types/canvas-confetti": "^1.9.0",
+    "@types/node": "^22.13.5",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "@vitejs/plugin-react": "^6.1.1",
+    "autoprefixer": "^10.4.20",
+    "jsdom": "^26.0.0",
+    "typescript": "^5.8.2",
+    "vite": "^8.2.2",
+    "vitest": "^4.1.11"
   }
 }

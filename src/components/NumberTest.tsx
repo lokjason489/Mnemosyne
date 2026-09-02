@@ -1,358 +1,406 @@
-import React from "react";
+import React, { useState, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
+import { motion, AnimatePresence } from 'motion/react';
 import {
-	Box,
-	Button,
-	FormControl,
-	FormHelperText,
-	Input,
-	InputLabel,
-	Slider,
-	Typography,
-} from "@mui/material";
-import { useTranslation } from "react-i18next";
-import Grid from "@mui/material/Unstable_Grid2";
-import CheckIcon from "@mui/icons-material/Check";
-import ClearIcon from "@mui/icons-material/Clear";
+  CheckCircle2,
+  XCircle,
+  Play,
+  RotateCcw,
+  Sparkles,
+  Delete,
+  Send,
+  Zap,
+} from 'lucide-react';
+import confetti from 'canvas-confetti';
+import { GlowCard } from './ui/GlowCard';
+import { TactileButton } from './ui/TactileButton';
+import { SlidingNumber } from './ui/SlidingNumber';
+import { cn } from '../utils/cn';
+
 interface Props {
-	onClose: React.Dispatch<React.SetStateAction<number>>;
+  onClose: React.Dispatch<React.SetStateAction<number>>;
 }
 
-const NumberTest: React.FC<Props> = ({ onClose }) => {
-	const countRef = React.useRef(0);
-	const [count, setCount] = React.useState(0);
-	const [level, setLevel] = React.useState<number>(12);
-	const [numbers, setNumbers] = React.useState<number[]>([]);
-	const [currentInput, setCurrentInput] = React.useState("");
-	const [inputIndex, setInputIndex] = React.useState(0);
-	const [userInputArray, setUserInputArray] = React.useState<number[]>([]);
-	const [inputError,setInputError] = React.useState(false);
-	const { t } = useTranslation();
+export const NumberTest: React.FC<Props> = ({ onClose }) => {
+  const { t } = useTranslation();
+  const [level, setLevel] = useState<number>(8); // length of number sequence
+  const [numbers, setNumbers] = useState<number[]>([]);
+  const [currentInput, setCurrentInput] = useState('');
+  const [userInputArray, setUserInputArray] = useState<number[]>([]);
+  const [inputError, setInputError] = useState(false);
 
-	const startTimer = () => {
-		const numbers: React.SetStateAction<number[]> = [];
-		while (numbers.length < level) {
-			let num = Math.floor(Math.random() * 10); // 隨機生成一個數字
-			if (numbers.length > 0 && numbers[numbers.length - 1] === num) {
-				continue;
-			} else {
-				numbers.push(num); // 將這個数字加入散程
-			}
-		}
-		setNumbers(numbers);
-		setInputIndex(0);
-		setNumberTestStart(true);
-		setNumberTestEnd(false);
-		countRef.current = 0;
-		setCount(0);
-		const TimerId = setInterval(() => {
-			countRef.current += 1;
-			setCount(countRef.current);
-			if (countRef.current >= level) {
-				clearInterval(TimerId);
-				setNumberTestInputStart(true);
-				setNumberTestStart(false);
-				setCurrentInput("");
-			}
-		}, 1000);
-	};
+  // Phases: 'ready' | 'memorizing' | 'input' | 'result'
+  const [phase, setPhase] = useState<'ready' | 'memorizing' | 'input' | 'result'>('ready');
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [timerProgress, setTimerProgress] = useState(0);
 
-	const handleInput = (event: React.ChangeEvent<HTMLInputElement>) => {
-		if(event.target.value.length > 1){
-			setInputError(true);
-		}else{
-			setInputError(false);
-		}
-		setCurrentInput(event.target.value);
-	};
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-	const handleInputSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-		event.preventDefault();
-		setInputIndex((index) => index + 1);
-		let tempArray = userInputArray;
-		tempArray.push(Number(currentInput));
-		setUserInputArray(tempArray);
-		if (currentInput === numbers[inputIndex].toString()) {
-			setNumberTestCorrect((correct) => correct + 1);
-		} else {
-			setNumberTestWrong((wrong) => wrong + 1);
-		}
-		if (inputIndex === level - 1) {
-			setNumberTestEnd(true);
-			setNumberTestInputStart(false);
-			return;
-		}
-		setCurrentInput("");
-		document.getElementById("userInput")?.focus();
-	};
+  // Start the memorization sequence
+  const startTest = () => {
+    const seq: number[] = [];
+    while (seq.length < level) {
+      const num = Math.floor(Math.random() * 10);
+      if (seq.length > 0 && seq[seq.length - 1] === num) {
+        continue;
+      }
+      seq.push(num);
+    }
+    setNumbers(seq);
+    setUserInputArray([]);
+    setCurrentInput('');
+    setCurrentIndex(0);
+    setTimerProgress(0);
+    setPhase('memorizing');
+  };
 
-	const handleSliderChange = (event: Event, newValue: number | number[]) => {
-		setLevel(newValue as number);
-	};
+  // Timer loop for memorizing phase
+  useEffect(() => {
+    if (phase === 'memorizing') {
+      setCurrentIndex(0);
+      let count = 0;
 
-	const [NumberTestCorrect, setNumberTestCorrect] = React.useState(0);
-	const [NumberTestWrong, setNumberTestWrong] = React.useState(0);
-	const [NumberTestConfirm, setNumberTestConfirm] = React.useState(true);
-	const [NumberTestStart, setNumberTestStart] = React.useState(false);
-	const [NumberTestInputStart, setNumberTestInputStart] = React.useState(false);
-	const [NumberTestEnd, setNumberTestEnd] = React.useState(false);
+      timerRef.current = setInterval(() => {
+        count += 1;
+        setCurrentIndex(count);
+        setTimerProgress((count / level) * 100);
 
-	return (
-		<Box
-			sx={{
-				padding: 2,
-				position: "relative",
-				display: "flex",
-				flexDirection: "row",
-				justifyContent: "center",
-				alignItems: "center",
-				height: "100%",
-				width: "100%",
-			}}
-		>
-			{NumberTestConfirm && (
-				<Box
-					sx={{
-						padding: 2,
-						position: "relative",
-						display: "flex",
-						flexDirection: "row",
-						justifyContent: "center",
-						alignItems: "center",
-						height: "100%",
-						paddingBottom: "20%",
-						width: "100%",
-					}}
-				>
-					<Grid container spacing={3} sx={{ width: "100%" }}>
-						<Grid xs={12}>
-							<Typography variant="h4" align="center">
-								{t("NumberTest_Start")}
-							</Typography>
-							<Typography paddingTop={2} variant="body2" align="center">
-								{t("Number_desc")}
-							</Typography>
-						</Grid>
-						<Grid xs={12}>
-							<Typography variant="body1" gutterBottom>
-								{t("level")}: {level}
-							</Typography>
-							<Slider
-								value={typeof level === "number" ? level : 0}
-								aria-label="Small"
-								defaultValue={10}
-								min={5}
-								max={20}
-								valueLabelDisplay="auto"
-								onChange={handleSliderChange}
-								aria-labelledby="input-slider"
-							/>
-						</Grid>
-						<Grid xs={12} sx={{ display: "flex", justifyContent: "center" }}>
-							<Button
-								variant="contained"
-								color="primary"
-								onClick={() => {
-									setNumberTestConfirm(false);
-									setNumberTestEnd(false);
-									setNumberTestInputStart(false);
-									setNumberTestCorrect(0);
-									setNumberTestWrong(0);
-									startTimer();
-									setUserInputArray([]);
-								}}
-							>
-								{t("start")}
-							</Button>
-						</Grid>
-					</Grid>
-				</Box>
-			)}
-			{NumberTestStart && !NumberTestInputStart && !NumberTestEnd && (
-				<Box
-					sx={{
-						flexGrow: 1,
-						padding: 2,
-						position: "relative",
-						display: "flex",
-						flexDirection: "column",
-						justifyContent: "center",
-						alignItems: "center",
-						height: "100%",
-						paddingBottom: "20%",
-						gap: "8px",
-					}}
-				>
-					<Typography variant="h4" align="center">
-						{t("currNum")}
-					</Typography>
-					<Typography variant="h2" align="center">
-						{numbers[count]}
-					</Typography>
-				</Box>
-			)}
-			{!NumberTestStart && NumberTestInputStart && !NumberTestEnd && (
-				<Box
-					maxWidth={"sm"}
-					sx={{
-						flexGrow: 1,
-						padding: 2,
-						position: "relative",
-						display: "flex",
-						flexDirection: "column",
-						justifyContent: "center",
-						alignItems: "center",
-						height: "100%",
-						width: "100%",
-						paddingBottom: "20%",
-						gap: "8px",
-					}}
-				>
-					<Grid
-						container
-						spacing={{ xs: 1, sm: 1, md: 0 }}
-						columns={{ xs: 4, sm: 8, md: 8 }}
-						sx={{ width: "100%" }}
-					>
-						{Array.from(Array(numbers.length)).map((_, index) => {
-							return (
-								<Grid
-									xs={1}
-									sm={1}
-									md={1}
-									key={index}
-									sx={{
-										border: "0.125rem solid",
-										borderRadius: "1rem",
-										padding: 1,
-										margin: 1,
-									}}
-								>
-									<Typography
-										variant="h5"
-										align="center"
-										sx={{
-											aspectRatio: 1,
-											margin: "auto",
-											inset: "0",
-											display: "flex",
-											justifyContent: "center",
-											alignItems: "center",
-										}}
-									>
-										{userInputArray[index]}
-									</Typography>
-								</Grid>
-							);
-						})}
-					</Grid>
-					<form style={{ width: "100%" }} onSubmit={handleInputSubmit}>
-						<Box
-							sx={{
-								flexGrow: 1,
-								padding: 2,
-								position: "relative",
-								display: "flex",
-								flexDirection: "column",
-								justifyContent: "center",
-								alignItems: "center",
-								height: "100%",
-								width: "100%",
-								gap: "8px",
-							}}
-						>
-							<FormControl error={inputError} variant="standard" fullWidth>
-								<InputLabel htmlFor="userInput">{t("inputNum")}</InputLabel>
-								<Input
-									id="userInput"
-									placeholder="0"
-									aria-describedby="user-input-number"
-									inputProps={{ inputMode: "numeric", pattern: "^[0-9]{1}$" }}
-									autoFocus
-									autoCorrect="off"
-									autoComplete="off"
-									autoCapitalize="off"
-									required
-									spellCheck="false"
-									value={currentInput}
-									onChange={handleInput}
-								/>
-								<FormHelperText sx={{display: {xs: "none", sm: "block", md: "block", lg: "block", xl: "block"}, color: inputError ? "red" : ""}} id="user-input-number">
-									{t("NumberInputError")}
-								</FormHelperText>
-							</FormControl>
-							<Button variant="outlined" type="submit">
-								{t("submit")}
-							</Button>
-						</Box>
-					</form>
-				</Box>
-			)}
-			{!NumberTestStart && !NumberTestInputStart && NumberTestEnd && (
-				<Box
-					sx={{
-						flexGrow: 1,
-						padding: 2,
-						position: "relative",
-						display: "flex",
-						flexDirection: "column",
-						justifyContent: "center",
-						alignItems: "center",
-						height: "100%",
-						paddingBottom: "20%",
-						gap: "8px",
-					}}
-				>
-					<Typography variant="h4" align="center">
-						{t("NumberTest")}
-					</Typography>
-					{/* <h2>Time: {NumberTestTime} seconds</h2> */}
-					<Typography variant="h5" align="center">
-						{t("correct_Ans")} : {NumberTestCorrect}
-					</Typography>
-					<Typography variant="h5" align="center">
-						{t("wrong_Ans")} : {NumberTestWrong}
-					</Typography>
-					<Grid container>
-						{numbers.map((number, index) => (
-							<Grid container xs={4} sm={3} md={2} key={index}>
-								<Typography
-									variant="h5"
-									align="center"
-									sx={{
-										display: "flex",
-										alignItems: "center",
-										justifyContent: "center",
-									}}
-								>
-									{number} : {userInputArray[index]}
-									{number === userInputArray[index] ? (
-										<CheckIcon sx={{ color: "green" }} />
-									) : (
-										<ClearIcon sx={{ color: "red" }} />
-									)}{" "}
-								</Typography>
-							</Grid>
-						))}
-					</Grid>
-					<Button
-						variant="outlined"
-						size="large"
-						onClick={() => {
-							setNumberTestConfirm(true);
-							setNumberTestStart(false);
-							setNumberTestInputStart(false);
-							setNumberTestEnd(false);
-							setNumberTestCorrect(0);
-							setNumberTestWrong(0);
-							onClose(0);
-						}}
-					>
-						{t("again")}
-					</Button>
-				</Box>
-			)}
-		</Box>
-	);
+        if (count >= level) {
+          if (timerRef.current) clearInterval(timerRef.current);
+          setPhase('input');
+        }
+      }, 1000);
+
+      return () => {
+        if (timerRef.current) clearInterval(timerRef.current);
+      };
+    }
+  }, [phase, level]);
+
+  // Handle single digit input
+  const handleDigitInput = (digit: number) => {
+    if (phase !== 'input') return;
+    setInputError(false);
+
+    const nextArray = [...userInputArray, digit];
+    setUserInputArray(nextArray);
+
+    if (nextArray.length === numbers.length) {
+      // Calculate score and fire confetti if high accuracy
+      let correct = 0;
+      for (let i = 0; i < numbers.length; i++) {
+        if (numbers[i] === nextArray[i]) correct++;
+      }
+      if (correct / numbers.length >= 0.7) {
+        confetti({
+          particleCount: 80,
+          spread: 70,
+          origin: { y: 0.6 },
+        });
+      }
+      setPhase('result');
+    }
+  };
+
+  const handleDelete = () => {
+    if (userInputArray.length > 0) {
+      setUserInputArray(userInputArray.slice(0, -1));
+    }
+  };
+
+  // Physical keyboard support
+  useEffect(() => {
+    if (phase !== 'input') return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key >= '0' && e.key <= '9') {
+        handleDigitInput(parseInt(e.key, 10));
+      } else if (e.key === 'Backspace') {
+        handleDelete();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [phase, userInputArray, numbers.length]);
+
+  // Score statistics
+  const scoreStats = React.useMemo(() => {
+    if (phase !== 'result') return { correct: 0, wrong: 0, accuracy: 0 };
+    let correct = 0;
+    numbers.forEach((num, i) => {
+      if (num === userInputArray[i]) correct++;
+    });
+    const wrong = numbers.length - correct;
+    const accuracy = Math.round((correct / numbers.length) * 100);
+    return { correct, wrong, accuracy };
+  }, [phase, numbers, userInputArray]);
+
+  return (
+    <div className="w-full max-w-2xl mx-auto">
+      <GlowCard className="p-6 md:p-8">
+        <AnimatePresence mode="wait">
+          {/* 1. READY PHASE */}
+          {phase === 'ready' && (
+            <motion.div
+              key="ready"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="flex flex-col items-center text-center gap-6"
+            >
+              <div className="flex items-center justify-center w-16 h-16 rounded-3xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800">
+                <Zap className="w-8 h-8" />
+              </div>
+
+              <div className="space-y-2">
+                <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight">
+                  {t('NumberTest')}
+                </h2>
+                <p className="text-sm md:text-base text-slate-500 dark:text-slate-400 max-w-md">
+                  {t('Number_desc')}
+                </p>
+              </div>
+
+              {/* Difficulty Selection Pills */}
+              <div className="w-full max-w-md bg-slate-100 dark:bg-slate-800/80 p-1.5 rounded-2xl border border-slate-200 dark:border-slate-700 flex justify-between gap-1">
+                {[
+                  { label: t('easy'), val: 6 },
+                  { label: t('medium'), val: 8 },
+                  { label: t('difficult'), val: 12 },
+                ].map((item) => (
+                  <button
+                    key={item.val}
+                    onClick={() => setLevel(item.val)}
+                    className={cn(
+                      'flex-1 py-2 text-xs md:text-sm font-bold rounded-xl transition-all cursor-pointer',
+                      level === item.val
+                        ? 'bg-white dark:bg-indigo-600 text-indigo-600 dark:text-white shadow-sm'
+                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                    )}
+                  >
+                    {item.label} ({item.val})
+                  </button>
+                ))}
+              </div>
+
+              <TactileButton
+                variant="primary"
+                size="lg"
+                onClick={startTest}
+                className="w-full max-w-xs mt-2"
+              >
+                <Play className="w-5 h-5 fill-current" />
+                <span>{t('start')}</span>
+              </TactileButton>
+            </motion.div>
+          )}
+
+          {/* 2. MEMORIZING PHASE */}
+          {phase === 'memorizing' && (
+            <motion.div
+              key="memorizing"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="flex flex-col items-center justify-center min-h-[340px] text-center gap-6"
+            >
+              <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-indigo-500 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/60 px-3 py-1.5 rounded-full border border-indigo-200/60 dark:border-indigo-800/60">
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>{t('level')}: {currentIndex + 1} / {level}</span>
+              </div>
+
+              {/* Huge Flashing Digit Display */}
+              <div className="relative flex items-center justify-center w-40 h-40 md:w-48 md:h-48 rounded-3xl bg-gradient-to-tr from-indigo-500/10 via-purple-500/10 to-transparent border border-indigo-500/20 shadow-2xl backdrop-blur-md">
+                <AnimatePresence mode="wait">
+                  <motion.span
+                    key={currentIndex}
+                    initial={{ opacity: 0, scale: 0.5, y: 15 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 1.2, y: -15 }}
+                    transition={{ duration: 0.2 }}
+                    className="text-7xl md:text-8xl font-black tracking-tighter bg-gradient-to-b from-indigo-600 to-purple-600 dark:from-indigo-400 dark:to-purple-300 bg-clip-text text-transparent select-none font-mono"
+                  >
+                    {numbers[currentIndex] ?? '-'}
+                  </motion.span>
+                </AnimatePresence>
+              </div>
+
+              {/* Progress Bar */}
+              <div className="w-full max-w-xs bg-slate-200 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
+                <motion.div
+                  className="bg-gradient-to-r from-indigo-500 to-purple-600 h-full rounded-full"
+                  style={{ width: `${timerProgress}%` }}
+                  transition={{ ease: 'linear' }}
+                />
+              </div>
+            </motion.div>
+          )}
+
+          {/* 3. INPUT PHASE */}
+          {phase === 'input' && (
+            <motion.div
+              key="input"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="flex flex-col items-center text-center gap-6"
+            >
+              <div className="space-y-1">
+                <h3 className="text-xl md:text-2xl font-bold">{t('inputNum')}</h3>
+                <p className="text-xs md:text-sm text-slate-400">
+                  {userInputArray.length} / {numbers.length}
+                </p>
+              </div>
+
+              {/* Entered Digits Display Slots */}
+              <div className="flex flex-wrap justify-center gap-2 max-w-md min-h-[52px]">
+                {numbers.map((_, i) => {
+                  const entered = userInputArray[i];
+                  return (
+                    <div
+                      key={i}
+                      className={cn(
+                        'w-10 h-12 md:w-11 md:h-14 rounded-xl border flex items-center justify-center font-mono text-xl font-bold transition-all',
+                        entered !== undefined
+                          ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 shadow-sm'
+                          : i === userInputArray.length
+                          ? 'border-indigo-400 dark:border-indigo-500 ring-2 ring-indigo-500/20 bg-slate-50 dark:bg-slate-800/60 animate-pulse'
+                          : 'border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 text-slate-400'
+                      )}
+                    >
+                      {entered !== undefined ? entered : ''}
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Tactile Virtual Keypad */}
+              <div className="grid grid-cols-3 gap-2.5 w-full max-w-xs mt-2">
+                {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((digit) => (
+                  <TactileButton
+                    key={digit}
+                    variant="secondary"
+                    size="md"
+                    onClick={() => handleDigitInput(digit)}
+                    className="h-13 text-xl font-bold font-mono"
+                  >
+                    {digit}
+                  </TactileButton>
+                ))}
+
+                <TactileButton
+                  variant="outline"
+                  size="md"
+                  onClick={handleDelete}
+                  className="h-13"
+                  aria-label="Delete"
+                >
+                  <Delete className="w-5 h-5" />
+                </TactileButton>
+
+                <TactileButton
+                  variant="secondary"
+                  size="md"
+                  onClick={() => handleDigitInput(0)}
+                  className="h-13 text-xl font-bold font-mono"
+                >
+                  0
+                </TactileButton>
+
+                <div className="h-13 flex items-center justify-center text-xs font-semibold text-slate-400">
+                  ⌨️ Type
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {/* 4. RESULT PHASE */}
+          {phase === 'result' && (
+            <motion.div
+              key="result"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="flex flex-col items-center text-center gap-6"
+            >
+              <div className="space-y-1">
+                <h3 className="text-2xl font-extrabold">{t('StoopTest_Result')}</h3>
+                <p className="text-sm text-slate-500 dark:text-slate-400">
+                  {scoreStats.accuracy >= 80 ? '🌟 Excellent Memory Span!' : 'Keep training every day!'}
+                </p>
+              </div>
+
+              {/* Accuracy Badge */}
+              <div className="flex items-center gap-6 justify-center">
+                <div className="flex flex-col items-center p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800">
+                  <span className="text-3xl font-extrabold text-emerald-600 dark:text-emerald-400">
+                    <SlidingNumber value={scoreStats.correct} />
+                  </span>
+                  <span className="text-xs font-semibold text-emerald-700 dark:text-emerald-300">
+                    {t('correct_Ans')}
+                  </span>
+                </div>
+
+                <div className="flex flex-col items-center p-4 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800">
+                  <span className="text-3xl font-extrabold text-rose-600 dark:text-rose-400">
+                    <SlidingNumber value={scoreStats.wrong} />
+                  </span>
+                  <span className="text-xs font-semibold text-rose-700 dark:text-rose-300">
+                    {t('wrong_Ans')}
+                  </span>
+                </div>
+
+                <div className="flex flex-col items-center p-4 rounded-2xl bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800">
+                  <span className="text-3xl font-extrabold text-indigo-600 dark:text-indigo-400">
+                    <SlidingNumber value={scoreStats.accuracy} />%
+                  </span>
+                  <span className="text-xs font-semibold text-indigo-700 dark:text-indigo-300">
+                    {t('Score')}
+                  </span>
+                </div>
+              </div>
+
+              {/* Digit-by-Digit Breakdown */}
+              <div className="w-full max-w-lg p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700">
+                <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
+                  {numbers.map((num, i) => {
+                    const isMatch = num === userInputArray[i];
+                    return (
+                      <div
+                        key={i}
+                        className={cn(
+                          'flex items-center justify-between p-2 rounded-xl text-xs font-mono font-bold border',
+                          isMatch
+                            ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-600 dark:text-emerald-400'
+                            : 'bg-rose-500/10 border-rose-500/30 text-rose-600 dark:text-rose-400'
+                        )}
+                      >
+                        <span>{num}</span>
+                        <span>→</span>
+                        <span>{userInputArray[i] ?? '-'}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Again Button */}
+              <TactileButton
+                variant="primary"
+                size="lg"
+                onClick={() => setPhase('ready')}
+                className="w-full max-w-xs"
+              >
+                <RotateCcw className="w-5 h-5" />
+                <span>{t('again')}</span>
+              </TactileButton>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </GlowCard>
+    </div>
+  );
 };
 
 export default NumberTest;

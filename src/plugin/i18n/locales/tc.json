@@ -41,5 +41,6 @@
 	"difficult":"困難",
     "NumberInputError": "請輸入0-9的數字",
 	"MemoryGame": "記憶遊戲",
-	"MemoryGame_short": "記憶"
+	"MemoryGame_short": "記憶",
+	"Score": "得分"
 }

@@ -1,393 +1,322 @@
-import React, { useState } from "react";
-import { StoopTest, NumberTest, BallTest, MemoryGame } from "../../components";
-import AppBar from "@mui/material/AppBar";
-import CssBaseline from "@mui/material/CssBaseline";
-import Box from "@mui/material/Box";
-import Container from "@mui/material/Container";
-import Toolbar from "@mui/material/Toolbar";
-import { createTheme, ThemeProvider, useTheme } from "@mui/material/styles";
-import Tab from "@mui/material/Tab";
+import React, { useState, useMemo, useRef, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { CssBaseline } from '@mui/material';
+import { motion, AnimatePresence } from 'motion/react';
 import {
-	Button,
-	ClickAwayListener,
-	Grow,
-	IconButton,
-	MenuItem,
-	MenuList,
-	Paper,
-	Popper,
-	Tabs,
-} from "@mui/material";
-import { useTranslation } from "react-i18next";
-import DarkModeRoundedIcon from "@mui/icons-material/DarkModeRounded";
-import LightModeRoundedIcon from "@mui/icons-material/LightModeRounded";
-import useMediaQuery from "@mui/material/useMediaQuery";
-import GTranslateRoundedIcon from "@mui/icons-material/GTranslateRounded";
+  Brain,
+  Hash,
+  Eye,
+  Palette,
+  Grid3X3,
+  Sun,
+  Moon,
+  Globe,
+  ChevronDown,
+} from 'lucide-react';
+import { StoopTest, NumberTest, BallTest, MemoryGame } from '../../components';
+import { AnimatedTabs, type TabItem } from '../../components/ui/AnimatedTabs';
+import { cn } from '../../utils/cn';
 
-interface Props {}
+export const HomePage: React.FC = () => {
+  const { t, i18n } = useTranslation();
 
-interface TabPanelProps {
-	children?: React.ReactNode;
-	index: number;
-	value: number;
-}
+  // Dark / Light Mode
+  const [mode, setMode] = useState<'light' | 'dark'>(() => {
+    if (typeof window !== 'undefined' && window.matchMedia) {
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    return 'dark';
+  });
 
-function TabPanel(props: TabPanelProps) {
-	const { children, value, index, ...other } = props;
+  // Active Game Tab (0: Number, 1: Ball, 2: Stoop, 3: MemoryGame)
+  const [activeTab, setActiveTab] = useState(0);
 
-	return (
-		<div
-			role="tabpanel"
-			style={{ width: "100%", height: "100%" }}
-			hidden={value !== index}
-			id={`simple-tabpanel-${index}`}
-			aria-labelledby={`simple-tab-${index}`}
-			{...other}
-		>
-			{value === index && (
-				<Box sx={{ p: 3, width: "100%", height: "100%" }}>{children}</Box>
-			)}
-		</div>
-	);
-}
+  // Language Dropdown
+  const [langOpen, setLangOpen] = useState(false);
+  const langRef = useRef<HTMLDivElement>(null);
 
-function a11yProps(index: number) {
-	return {
-		id: `simple-tab-${index}`,
-		"aria-controls": `simple-tabpanel-${index}`,
-	};
-}
+  const languageList = useMemo(
+    () => [
+      { label: '繁體中文', value: 'tc', flag: '🇹🇼' },
+      { label: '简体中文', value: 'sc', flag: '🇨🇳' },
+      { label: 'English', value: 'en', flag: '🇺🇸' },
+    ],
+    []
+  );
 
-const ColorModeContext = React.createContext({ toggleColorMode: () => {} });
+  const currentLangObj = useMemo(
+    () => languageList.find((l) => l.value === i18n.language) || languageList[0],
+    [i18n.language, languageList]
+  );
 
-const darkTheme = createTheme({
-	palette: {
-		mode: "dark",
-		background: {
-			default: "#222222",
-			paper: "#313131",
-		},
-		primary: {
-			main: "#90caf9",
-		},
-		secondary: {
-			main: "#a5d6a7",
-		},
-		text: {
-			primary: "#fafafa",
-			secondary: "#c4c4c4 ",
-		},
-	},
-	breakpoints: {
-		values: {
-			xs: 0,
-			sm: 600,
-			md: 900,
-			lg: 1200,
-			xl: 1536,
-		},
-	},
-});
+  // Sync mode with html root class for Tailwind dark:
+  useEffect(() => {
+    const root = document.documentElement;
+    if (mode === 'dark') {
+      root.classList.add('dark');
+    } else {
+      root.classList.remove('dark');
+    }
+  }, [mode]);
 
-const lightTheme = createTheme({
-	palette: {
-		mode: "light",
-		background: {
-			default: "#F4F7F5",
-			paper: "#f4f7f5",
-		},
-		primary: {
-			main: "#1976d2",
-		},
-		secondary: {
-			main: "#4caf50",
-		},
-		text: {
-			primary: "#333",
-			secondary: "#777",
-		},
-	},
-	breakpoints: {
-		values: {
-			xs: 0,
-			sm: 600,
-			md: 900,
-			lg: 1200,
-			xl: 1536,
-		},
-	},
-});
+  // Click outside listener for language menu
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (langRef.current && !langRef.current.contains(e.target as Node)) {
+        setLangOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
-const HomePage: React.FC<Props> = () => {
-	const [option, setOption] = React.useState(0);
+  const toggleTheme = () => {
+    setMode((prev) => (prev === 'light' ? 'dark' : 'light'));
+  };
 
-	const [mode, setMode] = React.useState<"light" | "dark">(
-		useMediaQuery("(prefers-color-scheme: dark)") ? "dark" : "light"
-	);
-	const theme_Size = useTheme();
-	const isLargeScreen = useMediaQuery(theme_Size.breakpoints.up("md"));
-	const { t, i18n } = useTranslation();
-	const [open, setOpen] = React.useState(false);
-	const colorMode = React.useMemo(
-		() => ({
-			toggleColorMode: () => {
-				setMode((prevMode) => (prevMode === "light" ? "dark" : "light"));
-			},
-		}),
-		[]
-	);
+  const handleLanguageSelect = (lang: string) => {
+    i18n.changeLanguage(lang);
+    setLangOpen(false);
+  };
 
-	const theme = React.useMemo(
-		() =>
-			createTheme({
-				palette: {
-					mode,
-					background:
-						mode === "dark"
-							? darkTheme.palette.background
-							: lightTheme.palette.background,
-					primary:
-						mode === "dark"
-							? darkTheme.palette.primary
-							: lightTheme.palette.primary,
-					secondary:
-						mode === "dark"
-							? darkTheme.palette.secondary
-							: lightTheme.palette.secondary,
-					text:
-						mode === "dark" ? darkTheme.palette.text : lightTheme.palette.text,
-				},
-			}),
-		[mode]
-	);
+  // MUI Theme to match modern palette
+  const muiTheme = useMemo(
+    () =>
+      createTheme({
+        palette: {
+          mode,
+          primary: {
+            main: '#6366f1', // Indigo
+          },
+          secondary: {
+            main: '#a855f7', // Purple
+          },
+          background: {
+            default: mode === 'dark' ? '#0b0f19' : '#f8fafc',
+            paper: mode === 'dark' ? '#131b2e' : '#ffffff',
+          },
+          text: {
+            primary: mode === 'dark' ? '#f8fafc' : '#0f172a',
+            secondary: mode === 'dark' ? '#94a3b8' : '#64748b',
+          },
+        },
+        typography: {
+          fontFamily: "'Plus Jakarta Sans', system-ui, -apple-system, sans-serif",
+        },
+        shape: {
+          borderRadius: 16,
+        },
+      }),
+    [mode]
+  );
 
-	const handleChange = (event: React.SyntheticEvent, newValue: number) => {
-		setOption(newValue);
-	};
-	const languageList = [
-		{ label: "English", value: "en" },
-		{ label: "繁體中文", value: "tc" },
-		{ label: "简体中文", value: "sc" },
-	];
+  // Tab Definitions
+  const tabs: TabItem[] = useMemo(
+    () => [
+      {
+        id: 0,
+        label: t('Number_short'),
+        icon: <Hash className="w-4 h-4 text-indigo-500" />,
+      },
+      {
+        id: 1,
+        label: t('Ball_short'),
+        icon: <Eye className="w-4 h-4 text-emerald-500" />,
+      },
+      {
+        id: 2,
+        label: t('StoopTest_short'),
+        icon: <Palette className="w-4 h-4 text-pink-500" />,
+      },
+      {
+        id: 3,
+        label: t('MemoryGame_short'),
+        icon: <Grid3X3 className="w-4 h-4 text-amber-500" />,
+      },
+    ],
+    [t]
+  );
 
-	const [language, setLanguage] = useState(
-		languageList.filter((el) => el.value === "tc")[0].label
-	);
+  return (
+    <ThemeProvider theme={muiTheme}>
+      <CssBaseline />
+      <div
+        className={cn(
+          'min-h-screen w-full flex flex-col font-sans transition-colors duration-300 relative',
+          mode === 'dark'
+            ? 'bg-[#0b0f19] text-slate-100'
+            : 'bg-gradient-to-br from-slate-50 via-indigo-50/20 to-slate-100 text-slate-900'
+        )}
+      >
+        {/* Ambient Glowing Background Orbs */}
+        <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
+          <div
+            className={cn(
+              'absolute -top-40 -left-40 w-96 h-96 rounded-full blur-3xl opacity-30 animate-pulse-slow',
+              mode === 'dark' ? 'bg-indigo-600' : 'bg-indigo-300'
+            )}
+          />
+          <div
+            className={cn(
+              'absolute top-1/3 -right-40 w-[28rem] h-[28rem] rounded-full blur-3xl opacity-25 animate-pulse-slow',
+              mode === 'dark' ? 'bg-purple-600' : 'bg-purple-300'
+            )}
+            style={{ animationDelay: '3s' }}
+          />
+          <div
+            className={cn(
+              'absolute -bottom-40 left-1/3 w-80 h-80 rounded-full blur-3xl opacity-20 animate-pulse-slow',
+              mode === 'dark' ? 'bg-emerald-600' : 'bg-teal-300'
+            )}
+            style={{ animationDelay: '6s' }}
+          />
+        </div>
 
-	const anchorRef = React.useRef<HTMLButtonElement>(null);
+        {/* Floating Modern Header */}
+        <header className="sticky top-0 z-50 w-full px-4 sm:px-6 py-3">
+          <div
+            className={cn(
+              'max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3 px-4 py-2.5 rounded-3xl',
+              'border border-slate-200/80 dark:border-slate-800/80 bg-white/70 dark:bg-slate-900/70',
+              'backdrop-blur-xl shadow-lg shadow-indigo-500/5'
+            )}
+          >
+            {/* Branding Logo */}
+            <div className="flex items-center gap-3 select-none">
+              <div className="relative flex items-center justify-center w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-600 to-purple-600 text-white shadow-md shadow-indigo-500/30">
+                <Brain className="w-5 h-5" />
+                <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+                </span>
+              </div>
+              <div className="flex flex-col">
+                <span className="text-xl font-extrabold tracking-tight bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 bg-clip-text text-transparent">
+                  Mnemosyne
+                </span>
+                <span className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 tracking-wider uppercase">
+                  Cognitive Lab
+                </span>
+              </div>
+            </div>
 
-	const handleToggle = () => {
-		setOpen((prevOpen) => !prevOpen);
-	};
+            {/* Navigation Tabs */}
+            <div className="w-full md:w-auto flex justify-center">
+              <AnimatedTabs
+                tabs={tabs}
+                activeTab={activeTab}
+                onChange={setActiveTab}
+                className="w-full md:w-auto"
+              />
+            </div>
 
-	const handleClose = (event: Event | React.SyntheticEvent) => {
-		if (
-			anchorRef.current &&
-			anchorRef.current.contains(event.target as HTMLElement)
-		) {
-			return;
-		}
+            {/* Actions: Language & Theme Toggle */}
+            <div className="flex items-center gap-2">
+              {/* Language Picker Dropdown */}
+              <div className="relative" ref={langRef}>
+                <button
+                  onClick={() => setLangOpen((prev) => !prev)}
+                  className={cn(
+                    'flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-xl border',
+                    'bg-slate-100/90 dark:bg-slate-800/80 border-slate-200 dark:border-slate-700',
+                    'text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700/80',
+                    'transition-all duration-200 outline-none cursor-pointer'
+                  )}
+                  aria-label="Change Language"
+                >
+                  <Globe className="w-3.5 h-3.5 text-indigo-500" />
+                  <span className="hidden sm:inline">{currentLangObj.flag}</span>
+                  <span>{currentLangObj.label}</span>
+                  <ChevronDown
+                    className={cn(
+                      'w-3 h-3 text-slate-400 transition-transform duration-200',
+                      langOpen && 'rotate-180'
+                    )}
+                  />
+                </button>
 
-		setOpen(false);
-	};
+                <AnimatePresence>
+                  {langOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 8, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 8, scale: 0.95 }}
+                      transition={{ duration: 0.15 }}
+                      className={cn(
+                        'absolute right-0 mt-2 w-36 rounded-2xl p-1.5 shadow-xl border z-50',
+                        'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 backdrop-blur-xl'
+                      )}
+                    >
+                      {languageList.map((item) => (
+                        <button
+                          key={item.value}
+                          onClick={() => handleLanguageSelect(item.value)}
+                          className={cn(
+                            'w-full flex items-center justify-between px-3 py-2 text-xs font-medium rounded-xl',
+                            'transition-colors duration-150 cursor-pointer',
+                            i18n.language === item.value
+                              ? 'bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 font-bold'
+                              : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/70'
+                          )}
+                        >
+                          <span className="flex items-center gap-2">
+                            <span>{item.flag}</span>
+                            <span>{item.label}</span>
+                          </span>
+                        </button>
+                      ))}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
 
-	const handleClick = (lang: string) => {
-		i18n.changeLanguage(lang);
-		setLanguage(languageList.filter((el) => el.value === lang)[0].label);
-		setOpen(false);
-	};
+              {/* Dark / Light Toggle */}
+              <button
+                onClick={toggleTheme}
+                className={cn(
+                  'p-2 rounded-xl border transition-all duration-200 cursor-pointer',
+                  'bg-slate-100/90 dark:bg-slate-800/80 border-slate-200 dark:border-slate-700',
+                  'text-slate-700 dark:text-slate-300 hover:scale-105 active:scale-95'
+                )}
+                aria-label="Toggle Theme"
+              >
+                {mode === 'dark' ? (
+                  <Sun className="w-4 h-4 text-amber-400" />
+                ) : (
+                  <Moon className="w-4 h-4 text-indigo-600" />
+                )}
+              </button>
+            </div>
+          </div>
+        </header>
 
-	function handleListKeyDown(event: React.KeyboardEvent) {
-		if (event.key === "Tab") {
-			event.preventDefault();
-			setOpen(false);
-		} else if (event.key === "Escape") {
-			setOpen(false);
-		}
-	}
+        {/* Main Content Area */}
+        <main className="relative z-10 flex-1 max-w-5xl w-full mx-auto px-4 py-6 flex flex-col items-center justify-center">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeTab}
+              initial={{ opacity: 0, y: 16, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -16, scale: 0.98 }}
+              transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+              className="w-full"
+            >
+              {activeTab === 0 && <NumberTest onClose={setActiveTab} />}
+              {activeTab === 1 && <BallTest onClose={setActiveTab} />}
+              {activeTab === 2 && <StoopTest onClose={setActiveTab} />}
+              {activeTab === 3 && <MemoryGame />}
+            </motion.div>
+          </AnimatePresence>
+        </main>
 
-	const prevOpen = React.useRef(open);
-	React.useEffect(() => {
-		if (prevOpen.current === true && open === false) {
-			anchorRef.current!.focus();
-		}
-
-		prevOpen.current = open;
-	}, [open]);
-
-	return (
-		<ColorModeContext.Provider value={colorMode}>
-			<ThemeProvider theme={theme}>
-				<CssBaseline />
-				<AppBar color="transparent" position="relative">
-					<Toolbar disableGutters = {!isLargeScreen} sx={{ width: "100%", display: "flex" }}>
-						<Box sx={{ width: "100%", display: "flex" ,flexGrow:1}}>
-							<Tabs
-								value={option}
-								onChange={handleChange}
-								aria-label="Main Function Tabs"
-								variant={isLargeScreen ? "fullWidth" : "scrollable"}
-								// scrollButtons={!isLargeScreen}
-								// allowScrollButtonsMobile={!isLargeScreen}
-								textColor="inherit"
-							>
-								<Tab
-									label={isLargeScreen ? t("NumberTest") : t("Number_short")}
-									wrapped = {true}
-									sx={{flex:"1 1 0", fontWeight:"500",fontSize:"1rem"}}
-									{...a11yProps(0)}
-								/>
-								<Tab
-									label={isLargeScreen ? t("BallTest") : t("Ball_short")}
-									wrapped = {true}
-									sx={{flex:"1 1 0", fontWeight:"500",fontSize:"1rem"}}
-									{...a11yProps(1)}
-								/>
-								<Tab
-									label={isLargeScreen ? t("StoopTest") : t("StoopTest_short")}
-									wrapped = {true}
-									sx={{flex:"1 1 0", fontWeight:"500",fontSize:"1rem"}}
-									{...a11yProps(2)}
-								/>
-								<Tab
-									label={isLargeScreen ? t("MemoryGame") : t("MemoryGame_short")}
-									wrapped = {true}
-									sx={{flex:"1 1 0", fontWeight:"500",fontSize:"1rem"}}
-									{...a11yProps(3)}
-								/>
-							</Tabs>
-						</Box>
-						<Box sx={{ flexBasis:"50px" }}>
-							{isLargeScreen && (
-								<Button
-									ref={anchorRef}
-									id="composition-button"
-									aria-controls={open ? "composition-menu" : undefined}
-									aria-expanded={open ? "true" : undefined}
-									aria-haspopup="true"
-									size="small"
-									sx={{ width: "100px" }}
-									onClick={handleToggle}
-								>
-									{language}
-								</Button>
-							)}
-							{!isLargeScreen && (
-								<IconButton
-									sx={{ ml: 1 }}
-									ref={anchorRef}
-									id="composition-button"
-									aria-controls={open ? "composition-menu" : undefined}
-									aria-expanded={open ? "true" : undefined}
-									aria-haspopup="true"
-									size="small"
-									color="inherit"
-									onClick={handleToggle}
-								>
-									<GTranslateRoundedIcon
-										color="primary"
-										fontSize="small"
-									></GTranslateRoundedIcon>
-								</IconButton>
-							)}
-
-							<Popper
-								open={open}
-								anchorEl={anchorRef.current}
-								role={undefined}
-								placement="top-start"
-								transition
-								disablePortal
-								sx={{zIndex:99}}
-							>
-								{({ TransitionProps, placement }) => (
-									<Grow
-										{...TransitionProps}
-										style={{
-											transformOrigin:
-												placement === "top-start" ? "top" : "bottom",
-										}}
-									>
-										<Paper>
-											<ClickAwayListener onClickAway={handleClose}>
-												<MenuList
-													autoFocusItem={open}
-													id="composition-menu"
-													aria-labelledby="composition-button"
-													onKeyDown={handleListKeyDown}
-													variant="selectedMenu"
-												>
-													{languageList.map((item, index) => (
-														<MenuItem
-															key={index}
-															value={item.value}
-															autoFocus
-															selected={item.label === language}
-															onClick={() => handleClick(item.value)}
-															sx={{ justifyContent: "center" }}
-														>
-															{item.label}
-														</MenuItem>
-													))}
-												</MenuList>
-											</ClickAwayListener>
-										</Paper>
-									</Grow>
-								)}
-							</Popper>
-						</Box>
-						<Box sx={{ flexBasis:"50px" }}>
-							<IconButton
-								sx={{ ml: 1 }}
-								onClick={colorMode.toggleColorMode}
-								color="inherit"
-							>
-								{theme.palette.mode === "light" ? (
-									<DarkModeRoundedIcon
-										fontSize={
-											theme.breakpoints.down("md") ? "small" : "inherit"
-										}
-										color="primary"
-									/>
-								) : (
-									<LightModeRoundedIcon
-										fontSize={
-											theme.breakpoints.down("md") ? "small" : "inherit"
-										}
-										color="primary"
-									/>
-								)}
-							</IconButton>
-						</Box>
-					</Toolbar>
-				</AppBar>
-				{
-					<Container
-						maxWidth="md"
-						sx={{
-							height: "100%",
-							display: "flex",
-							justifyContent: "center",
-							alignItems: "center",
-						}}
-					>
-						<TabPanel value={option} index={0}>
-							<NumberTest onClose={setOption}></NumberTest>
-						</TabPanel>
-						<TabPanel value={option} index={1}>
-							<BallTest onClose={setOption} />
-						</TabPanel>
-						<TabPanel value={option} index={2}>
-							<StoopTest onClose={setOption}></StoopTest>
-						</TabPanel>
-						<TabPanel value={option} index={3}>
-							<MemoryGame />
-						</TabPanel>
-					</Container>
-				}
-			</ThemeProvider>
-		</ColorModeContext.Provider>
-	);
+        {/* Subtle Footer */}
+        <footer className="relative z-10 py-4 text-center text-xs font-medium text-slate-400 dark:text-slate-600">
+          <p>Mnemosyne Cognitive Training Lab • Built with React 19, Vite & Motion</p>
+        </footer>
+      </div>
+    </ThemeProvider>
+  );
 };
 
 export default HomePage;

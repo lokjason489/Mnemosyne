@@ -1,7 +1,20 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useTheme } from '@mui/material/styles';
 import { useTranslation } from 'react-i18next';
-import './MemoryGame.css';
+import { motion, AnimatePresence } from 'motion/react';
+import {
+  Grid3X3,
+  Play,
+  RotateCcw,
+  Sparkles,
+  Trophy,
+  Flame,
+  ArrowRight,
+} from 'lucide-react';
+import confetti from 'canvas-confetti';
+import { GlowCard } from './ui/GlowCard';
+import { TactileButton } from './ui/TactileButton';
+import { SlidingNumber } from './ui/SlidingNumber';
+import { cn } from '../utils/cn';
 
 const GAME_STATE = {
   START: 'START',
@@ -10,150 +23,297 @@ const GAME_STATE = {
   CHECKING: 'CHECKING',
   LEVEL_UP: 'LEVEL_UP',
   GAME_OVER: 'GAME_OVER',
-};
+} as const;
 
-const MemoryGame: React.FC = () => {
+type GameStateType = typeof GAME_STATE[keyof typeof GAME_STATE];
+
+export const MemoryGame: React.FC = () => {
   const { t } = useTranslation();
-  const theme = useTheme();
   const [level, setLevel] = useState(1);
   const [score, setScore] = useState(0);
   const [gridSize, setGridSize] = useState(3);
   const [sequence, setSequence] = useState<number[]>([]);
   const [userSequence, setUserSequence] = useState<number[]>([]);
-  const [gameState, setGameState] = useState(GAME_STATE.START);
+  const [gameState, setGameState] = useState<GameStateType>(GAME_STATE.START);
   const [showingIndex, setShowingIndex] = useState(0);
+  const [activeBlock, setActiveBlock] = useState<number | null>(null);
 
-  const startNextLevel = useCallback(() => {
-    setGameState(GAME_STATE.SHOWING);
+  const startNextLevel = useCallback((lvl: number) => {
     setUserSequence([]);
     setShowingIndex(0);
+    setActiveBlock(null);
 
-    const currentGridSize = Math.min(3 + Math.floor((level - 1) / 5), 9);
+    // Grid size starts at 3x3, then expands
+    const currentGridSize = Math.min(3 + Math.floor((lvl - 1) / 4), 6);
     setGridSize(currentGridSize);
 
+    const totalCells = currentGridSize * currentGridSize;
     const newSequence: number[] = [];
-    while (newSequence.length < level) {
-      const randomIndex = Math.floor(Math.random() * (currentGridSize * currentGridSize));
-      if (!newSequence.includes(randomIndex)) {
-        newSequence.push(randomIndex);
-      }
+    const seqLength = 2 + lvl; // sequence length increases with level
+
+    while (newSequence.length < seqLength) {
+      const randomIndex = Math.floor(Math.random() * totalCells);
+      newSequence.push(randomIndex);
     }
+
     setSequence(newSequence);
-  }, [level]);
+    setGameState(GAME_STATE.SHOWING);
+  }, []);
 
+  // Play sequence during SHOWING phase
   useEffect(() => {
-    if (gameState === GAME_STATE.SHOWING && showingIndex < sequence.length) {
-      const timer = setTimeout(() => {
-        setShowingIndex(showingIndex + 1);
-      }, 500); // Show each block for 0.5 seconds
-      return () => clearTimeout(timer);
-    } else if (gameState === GAME_STATE.SHOWING && showingIndex >= sequence.length) {
-      const timer = setTimeout(() => {
-        setGameState(GAME_STATE.WAITING);
-      }, 500);
-      return () => clearTimeout(timer);
-    }
+    if (gameState === GAME_STATE.SHOWING) {
+      if (showingIndex < sequence.length) {
+        setActiveBlock(sequence[showingIndex]);
+        const onTimer = setTimeout(() => {
+          setActiveBlock(null);
+          const offTimer = setTimeout(() => {
+            setShowingIndex((prev) => prev + 1);
+          }, 200);
+          return () => clearTimeout(offTimer);
+        }, 500);
 
-    if (gameState === GAME_STATE.CHECKING) {
-      const isCorrect =
-        sequence.length === userSequence.length &&
-        sequence.every((val, index) => val === userSequence[index]);
-
-      if (isCorrect) {
-        setScore(score + level * 10);
-        setLevel(level + 1);
-        setGameState(GAME_STATE.LEVEL_UP);
+        return () => clearTimeout(onTimer);
       } else {
-        setGameState(GAME_STATE.GAME_OVER);
+        // Finished showing sequence
+        const waitTimer = setTimeout(() => {
+          setActiveBlock(null);
+          setGameState(GAME_STATE.WAITING);
+        }, 300);
+        return () => clearTimeout(waitTimer);
       }
     }
-  }, [gameState, sequence, userSequence, level, score, showingIndex]);
+  }, [gameState, showingIndex, sequence]);
 
+  // Handle block clicking by user
   const handleBlockClick = (index: number) => {
-    if (gameState !== GAME_STATE.WAITING || userSequence.includes(index)) {
+    if (gameState !== GAME_STATE.WAITING) return;
+
+    // Light up block briefly on tap
+    setActiveBlock(index);
+    setTimeout(() => setActiveBlock(null), 250);
+
+    const nextUserSeq = [...userSequence, index];
+    setUserSequence(nextUserSeq);
+
+    // Check if this step was correct immediately
+    const currentIndexToCheck = nextUserSeq.length - 1;
+    if (nextUserSeq[currentIndexToCheck] !== sequence[currentIndexToCheck]) {
+      // Wrong move -> Game Over
+      setGameState(GAME_STATE.GAME_OVER);
       return;
     }
 
-    const newUserSequence = [...userSequence, index];
-    setUserSequence(newUserSequence);
+    // If reached end of sequence -> Level up
+    if (nextUserSeq.length === sequence.length) {
+      setScore((prev) => prev + level * 15);
+      const nextLvl = level + 1;
+      setLevel(nextLvl);
 
-    if (newUserSequence.length === sequence.length) {
-      setGameState(GAME_STATE.CHECKING);
+      confetti({
+        particleCount: 70,
+        spread: 60,
+        origin: { y: 0.6 },
+      });
+
+      setGameState(GAME_STATE.LEVEL_UP);
     }
   };
 
   const handleStartGame = () => {
     setLevel(1);
     setScore(0);
-    startNextLevel();
+    startNextLevel(1);
   };
 
-  const handleNextLevel = () => {
-    startNextLevel();
-  };
-
-  const renderGrid = () => {
-    const totalBlocks = gridSize * gridSize;
-    return Array.from({ length: totalBlocks }).map((_, index) => {
-      const isHighlighted =
-        gameState === GAME_STATE.SHOWING && sequence[showingIndex] === index;
-      const isSelected = userSequence.includes(index);
-      let className = 'block';
-      if (isHighlighted) className += ' highlighted';
-      if (isSelected) className += ' selected';
-
-      return (
-        <div
-          key={index}
-          className={className}
-          style={{
-            backgroundColor: isHighlighted
-              ? theme.palette.secondary.main
-              : isSelected
-              ? theme.palette.primary.main
-              : theme.palette.background.paper,
-            border: `2px solid ${theme.palette.primary.main}`,
-          }}
-          onClick={() => handleBlockClick(index)}
-        />
-      );
-    });
+  const handleContinueNextLevel = () => {
+    startNextLevel(level);
   };
 
   return (
-    <div className="memory-game-container" style={{ backgroundColor: theme.palette.background.default }}>
-      <h2 style={{ color: theme.palette.text.primary }}>{t('MemoryGame')}</h2>
-      <div className="stats" style={{ color: theme.palette.text.secondary }}>
-        <span>{t('level')}: {level}</span>
-        <span>{t('Score')}: {score}</span>
-      </div>
-      <div className="grid-container" style={{ gridTemplateColumns: `repeat(${gridSize}, 1fr)` }}>
-        {renderGrid()}
-      </div>
-      {gameState === GAME_STATE.START && (
-        <button onClick={handleStartGame} style={{ backgroundColor: theme.palette.primary.main, color: theme.palette.getContrastText(theme.palette.primary.main) }}>
-          {t('start')}
-        </button>
-      )}
-      {gameState === GAME_STATE.LEVEL_UP && (
-        <div className="feedback">
-          <p style={{ color: theme.palette.text.primary }}>{t('correct_Ans')}</p>
-          <button onClick={handleNextLevel} style={{ backgroundColor: theme.palette.primary.main, color: theme.palette.getContrastText(theme.palette.primary.main) }}>
-            {t('again')}
-          </button>
-        </div>
-      )}
-      {gameState === GAME_STATE.GAME_OVER && (
-        <div className="feedback">
-          <h3 style={{ color: theme.palette.error.main }}>{t('wrong_Ans')}</h3>
-          <p style={{ color: theme.palette.text.secondary }}>
-            Your final score: {score}
-          </p>
-          <button onClick={handleStartGame} style={{ backgroundColor: theme.palette.primary.main, color: theme.palette.getContrastText(theme.palette.primary.main) }}>
-            {t('again')}
-          </button>
-        </div>
-      )}
+    <div className="w-full max-w-xl mx-auto">
+      <GlowCard className="p-6 md:p-8" glowColor="rgba(245, 158, 11, 0.15)">
+        <AnimatePresence mode="wait">
+          {/* 1. START SCREEN */}
+          {gameState === GAME_STATE.START && (
+            <motion.div
+              key="start"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="flex flex-col items-center text-center gap-6"
+            >
+              <div className="flex items-center justify-center w-16 h-16 rounded-3xl bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-800">
+                <Grid3X3 className="w-8 h-8" />
+              </div>
+
+              <div className="space-y-2">
+                <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight">
+                  {t('MemoryGame')}
+                </h2>
+                <p className="text-sm md:text-base text-slate-500 dark:text-slate-400 max-w-md">
+                  Watch the glowing pattern and repeat the exact sequence of blocks.
+                </p>
+              </div>
+
+              <TactileButton
+                variant="primary"
+                size="lg"
+                onClick={handleStartGame}
+                className="w-full max-w-xs mt-2 bg-gradient-to-r from-amber-500 to-orange-600 hover:shadow-amber-500/30"
+              >
+                <Play className="w-5 h-5 fill-current" />
+                <span>{t('start')}</span>
+              </TactileButton>
+            </motion.div>
+          )}
+
+          {/* 2. PLAYING / WAITING / SHOWING */}
+          {(gameState === GAME_STATE.SHOWING || gameState === GAME_STATE.WAITING) && (
+            <motion.div
+              key="gameplay"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="flex flex-col items-center gap-6"
+            >
+              {/* Stats Bar */}
+              <div className="flex items-center justify-between w-full max-w-sm px-2">
+                <div className="flex items-center gap-1.5 text-xs font-bold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/60 px-3 py-1.5 rounded-full border border-amber-200 dark:border-amber-800">
+                  <Flame className="w-3.5 h-3.5" />
+                  <span>{t('level')} <SlidingNumber value={level} /></span>
+                </div>
+
+                <div className="flex items-center gap-1.5 text-xs font-mono font-bold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-700">
+                  <Trophy className="w-3.5 h-3.5 text-amber-500" />
+                  <span>{t('Score')}: <SlidingNumber value={score} /></span>
+                </div>
+              </div>
+
+              {/* Status Hint */}
+              <div className="text-xs font-bold uppercase tracking-wider">
+                {gameState === GAME_STATE.SHOWING ? (
+                  <span className="text-amber-500 animate-pulse">👀 Watch the Sequence...</span>
+                ) : (
+                  <span className="text-emerald-500 font-semibold">
+                    👉 Repeat: {userSequence.length} / {sequence.length}
+                  </span>
+                )}
+              </div>
+
+              {/* Glowing Grid Blocks */}
+              <div
+                className="grid gap-2.5 w-full max-w-xs sm:max-w-sm aspect-square p-3 rounded-3xl bg-slate-100 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 shadow-xl"
+                style={{
+                  gridTemplateColumns: `repeat(${gridSize}, minmax(0, 1fr))`,
+                }}
+              >
+                {Array.from({ length: gridSize * gridSize }).map((_, index) => {
+                  const isIlluminated = activeBlock === index;
+                  return (
+                    <motion.button
+                      key={index}
+                      whileTap={gameState === GAME_STATE.WAITING ? { scale: 0.92 } : undefined}
+                      onClick={() => handleBlockClick(index)}
+                      disabled={gameState !== GAME_STATE.WAITING}
+                      className={cn(
+                        'rounded-2xl transition-all duration-150 aspect-square cursor-pointer border',
+                        isIlluminated
+                          ? 'bg-gradient-to-tr from-amber-400 to-orange-500 border-amber-300 shadow-lg shadow-amber-500/60 scale-105 ring-4 ring-amber-400/40'
+                          : 'bg-white dark:bg-slate-800/80 border-slate-200/80 dark:border-slate-700/80 hover:bg-slate-50 dark:hover:bg-slate-750 shadow-sm'
+                      )}
+                    />
+                  );
+                })}
+              </div>
+            </motion.div>
+          )}
+
+          {/* 3. LEVEL UP */}
+          {gameState === GAME_STATE.LEVEL_UP && (
+            <motion.div
+              key="levelup"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              className="flex flex-col items-center text-center gap-6"
+            >
+              <div className="flex items-center justify-center w-20 h-20 rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-500 border-2 border-emerald-400 animate-bounce">
+                <Sparkles className="w-10 h-10" />
+              </div>
+
+              <div className="space-y-1">
+                <h3 className="text-3xl font-extrabold text-emerald-600 dark:text-emerald-400">
+                  Level {level - 1} Cleared!
+                </h3>
+                <p className="text-sm text-slate-500 dark:text-slate-400">
+                  Current Score: {score} pts
+                </p>
+              </div>
+
+              <TactileButton
+                variant="success"
+                size="lg"
+                onClick={handleContinueNextLevel}
+                className="w-full max-w-xs mt-2"
+              >
+                <span>Next Round</span>
+                <ArrowRight className="w-5 h-5" />
+              </TactileButton>
+            </motion.div>
+          )}
+
+          {/* 4. GAME OVER */}
+          {gameState === GAME_STATE.GAME_OVER && (
+            <motion.div
+              key="gameover"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              className="flex flex-col items-center text-center gap-6"
+            >
+              <div className="space-y-2">
+                <h3 className="text-3xl font-extrabold text-rose-500">
+                  Game Over
+                </h3>
+                <p className="text-sm text-slate-500 dark:text-slate-400">
+                  You reached Round {level} with a great memory performance!
+                </p>
+              </div>
+
+              <div className="flex items-center gap-4 justify-center">
+                <div className="flex flex-col items-center p-4 rounded-2xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 min-w-[120px]">
+                  <span className="text-3xl font-extrabold text-slate-700 dark:text-slate-300">
+                    <SlidingNumber value={level} />
+                  </span>
+                  <span className="text-xs font-semibold text-slate-500">
+                    {t('level')}
+                  </span>
+                </div>
+
+                <div className="flex flex-col items-center p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 min-w-[120px]">
+                  <span className="text-3xl font-extrabold text-amber-600 dark:text-amber-400">
+                    <SlidingNumber value={score} />
+                  </span>
+                  <span className="text-xs font-semibold text-amber-700 dark:text-amber-300">
+                    {t('Score')}
+                  </span>
+                </div>
+              </div>
+
+              <TactileButton
+                variant="primary"
+                size="lg"
+                onClick={handleStartGame}
+                className="w-full max-w-xs mt-2"
+              >
+                <RotateCcw className="w-5 h-5" />
+                <span>{t('again')}</span>
+              </TactileButton>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </GlowCard>
     </div>
   );
 };
