@@ -39,5 +39,7 @@
     "easy":"容易",
 	"medium":"中等",
 	"difficult":"困难",
-    "NumberInputError": "请输入0-9的数字"
+    "NumberInputError": "请输入0-9的数字",
+	"MemoryGame": "记忆游戏",
+	"MemoryGame_short": "记忆"
 }

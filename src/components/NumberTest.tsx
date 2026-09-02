@@ -10,7 +10,7 @@ import {
 	Typography,
 } from "@mui/material";
 import { useTranslation } from "react-i18next";
-import Grid from "@mui/material/Unstable_Grid2/Grid2";
+import Grid from "@mui/material/Unstable_Grid2";
 import CheckIcon from "@mui/icons-material/Check";
 import ClearIcon from "@mui/icons-material/Clear";
 interface Props {

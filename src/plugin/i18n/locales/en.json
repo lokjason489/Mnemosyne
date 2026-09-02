@@ -10,7 +10,7 @@
 	"StoopTest_Start": "Start Short-Term Memory Training (Stoops)",
 	"level": "Round",
 	"start": "start",
-	"currNum": "current Number",
+	"currNum": "Current Number",
 	"submit": "submit",
 	"inputNum": "Please input the Number",
 	"correct_Ans": "Correct Answers",
@@ -39,5 +39,8 @@
 	"easy":"Easy",
 	"medium":"Medium",
 	"difficult":"Difficult",
-	"NumberInputError":"Please enter 0 - 9 number"
+	"NumberInputError":"Please enter 0 - 9 number",
+	"MemoryGame": "Memory Game",
+	"MemoryGame_short": "Memory",
+	"Score": "Score"
 }

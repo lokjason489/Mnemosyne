@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { StoopTest, NumberTest, BallTest } from "../../components";
+import { StoopTest, NumberTest, BallTest, MemoryGame } from "../../components";
 import AppBar from "@mui/material/AppBar";
 import CssBaseline from "@mui/material/CssBaseline";
 import Box from "@mui/material/Box";
@@ -249,6 +249,12 @@ const HomePage: React.FC<Props> = () => {
 									sx={{flex:"1 1 0", fontWeight:"500",fontSize:"1rem"}}
 									{...a11yProps(2)}
 								/>
+								<Tab
+									label={isLargeScreen ? t("MemoryGame") : t("MemoryGame_short")}
+									wrapped = {true}
+									sx={{flex:"1 1 0", fontWeight:"500",fontSize:"1rem"}}
+									{...a11yProps(3)}
+								/>
 							</Tabs>
 						</Box>
 						<Box sx={{ flexBasis:"50px" }}>
@@ -373,6 +379,9 @@ const HomePage: React.FC<Props> = () => {
 						</TabPanel>
 						<TabPanel value={option} index={2}>
 							<StoopTest onClose={setOption}></StoopTest>
+						</TabPanel>
+						<TabPanel value={option} index={3}>
+							<MemoryGame />
 						</TabPanel>
 					</Container>
 				}

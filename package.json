@@ -49,5 +49,17 @@
   },
   "devDependencies": {
     "autoprefixer": "10.4.19"
+  },
+  "pnpm": {
+    "overrides": {
+      "http-proxy-middleware": "^2.0.8",
+      "webpack-dev-server": "^5.2.1",
+      "brace-expansion@2": "^2.0.2",
+      "on-headers": "^1.1.0",
+      "form-data": "^3.0.4"
+    },
+    "patchedDependencies": {
+      "react-scripts@5.0.1": "patches/react-scripts@5.0.1.patch"
+    }
   }
 }

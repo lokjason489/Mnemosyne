@@ -1,4 +1,5 @@
 import NumberTest from "./NumberTest";
 import StoopTest from "./StoopTest";
 import BallTest from "./BallTest";
-export { NumberTest, StoopTest, BallTest };
+import MemoryGame from "./MemoryGame";
+export { NumberTest, StoopTest, BallTest, MemoryGame };
