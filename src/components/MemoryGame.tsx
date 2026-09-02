@@ -37,17 +37,20 @@ export const MemoryGame: React.FC = () => {
     setShowingIndex(0);
     setActiveBlock(null);
 
-    // Grid size starts at 3x3, then expands
+    // Grid size starts at 3x3, then expands with level
     const currentGridSize = Math.min(3 + Math.floor((lvl - 1) / 4), 6);
     setGridSize(currentGridSize);
 
     const totalCells = currentGridSize * currentGridSize;
     const newSequence: number[] = [];
-    const seqLength = 2 + lvl; // sequence length increases with level
+    const seqLength = Math.min(2 + lvl, totalCells - 1); // sequence length increases with level
 
+    // Ensure all cells in a single round are strictly UNIQUE (no duplicate blocks in the same round)
     while (newSequence.length < seqLength) {
       const randomIndex = Math.floor(Math.random() * totalCells);
-      newSequence.push(randomIndex);
+      if (!newSequence.includes(randomIndex)) {
+        newSequence.push(randomIndex);
+      }
     }
 
     setSequence(newSequence);
@@ -94,10 +97,11 @@ export const MemoryGame: React.FC = () => {
   // Handle block clicking by user
   const handleBlockClick = (index: number) => {
     if (gameState !== GAME_STATE.WAITING) return;
+    if (userSequence.includes(index)) return; // Prevent double-clicking already selected cell
 
     // Light up block briefly on tap
     setActiveBlock(index);
-    setTimeout(() => setActiveBlock(null), 250);
+    setTimeout(() => setActiveBlock(null), 200);
 
     const nextUserSeq = [...userSequence, index];
     setUserSequence(nextUserSeq);
@@ -233,17 +237,24 @@ export const MemoryGame: React.FC = () => {
               >
                 {Array.from({ length: gridSize * gridSize }).map((_, index) => {
                   const isIlluminated = activeBlock === index;
+                  const isSelected = userSequence.includes(index);
                   return (
                     <motion.button
                       key={index}
-                      whileTap={gameState === GAME_STATE.WAITING ? { scale: 0.92 } : undefined}
+                      whileTap={
+                        gameState === GAME_STATE.WAITING && !isSelected
+                          ? { scale: 0.92 }
+                          : undefined
+                      }
                       onClick={() => handleBlockClick(index)}
-                      disabled={gameState !== GAME_STATE.WAITING}
+                      disabled={gameState !== GAME_STATE.WAITING || isSelected}
                       className={cn(
                         'rounded-2xl transition-all duration-150 aspect-square cursor-pointer border-2',
                         isIlluminated
                           ? 'bg-gradient-to-tr from-amber-400 to-orange-500 border-amber-200 shadow-xl shadow-amber-500/70 scale-105 ring-4 ring-amber-400/50 z-10'
-                          : 'bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 hover:border-amber-400 dark:hover:border-amber-500 hover:bg-amber-50/40 dark:hover:bg-slate-750 shadow-sm'
+                          : isSelected
+                            ? 'bg-gradient-to-tr from-indigo-500 to-purple-600 border-indigo-400 text-white shadow-md shadow-indigo-500/30 scale-95'
+                            : 'bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 hover:border-amber-400 dark:hover:border-amber-500 hover:bg-amber-50/40 dark:hover:bg-slate-750 shadow-sm'
                       )}
                     />
                   );
