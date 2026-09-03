@@ -191,7 +191,7 @@ export const NumberTest: React.FC<Props> = () => {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="flex flex-col items-center justify-center min-h-[340px] text-center gap-6"
+              className="flex flex-col items-center justify-center min-h-85 text-center gap-6"
             >
               <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-indigo-700 dark:text-indigo-300 bg-indigo-100 dark:bg-indigo-950/70 px-3.5 py-1.5 rounded-full border-2 border-indigo-300 dark:border-indigo-800 shadow-sm">
                 <Sparkles className="w-3.5 h-3.5" />
@@ -219,7 +219,7 @@ export const NumberTest: React.FC<Props> = () => {
               {/* Progress Bar */}
               <div className="w-full max-w-xs bg-slate-300 dark:bg-slate-800 h-2.5 rounded-full overflow-hidden border border-slate-300/80">
                 <motion.div
-                  className="bg-gradient-to-r from-indigo-500 to-purple-600 h-full rounded-full"
+                  className="bg-linear-to-rrom-indigo-500 to-purple-600 h-full rounded-full"
                   style={{ width: `${timerProgress}%` }}
                   transition={{ ease: 'linear' }}
                 />
@@ -246,7 +246,7 @@ export const NumberTest: React.FC<Props> = () => {
               </div>
 
               {/* Entered Digits Display Slots with Crisp Contrast */}
-              <div className="flex flex-wrap justify-center gap-2 max-w-md min-h-[52px]">
+              <div className="flex flex-wrap justify-center gap-2 max-w-md min-h-13">
                 {numbers.map((_, i) => {
                   const entered = userInputArray[i];
                   const isCurrent = i === userInputArray.length;
@@ -331,7 +331,7 @@ export const NumberTest: React.FC<Props> = () => {
 
               {/* Accuracy Badges with High Contrast */}
               <div className="flex items-center gap-4 md:gap-6 justify-center">
-                <div className="flex flex-col items-center p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border-2 border-emerald-300 dark:border-emerald-800 shadow-sm min-w-[100px]">
+                <div className="flex flex-col items-center p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border-2 border-emerald-300 dark:border-emerald-800 shadow-sm min-w-25">
                   <span className="text-3xl font-black text-emerald-700 dark:text-emerald-400">
                     <SlidingNumber value={scoreStats.correct} />
                   </span>
@@ -340,7 +340,7 @@ export const NumberTest: React.FC<Props> = () => {
                   </span>
                 </div>
 
-                <div className="flex flex-col items-center p-4 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border-2 border-rose-300 dark:border-rose-800 shadow-sm min-w-[100px]">
+                <div className="flex flex-col items-center p-4 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border-2 border-rose-300 dark:border-rose-800 shadow-sm min-w-25">
                   <span className="text-3xl font-black text-rose-700 dark:text-rose-400">
                     <SlidingNumber value={scoreStats.wrong} />
                   </span>
@@ -349,7 +349,7 @@ export const NumberTest: React.FC<Props> = () => {
                   </span>
                 </div>
 
-                <div className="flex flex-col items-center p-4 rounded-2xl bg-indigo-50 dark:bg-indigo-950/40 border-2 border-indigo-300 dark:border-indigo-800 shadow-sm min-w-[100px]">
+                <div className="flex flex-col items-center p-4 rounded-2xl bg-indigo-50 dark:bg-indigo-950/40 border-2 border-indigo-300 dark:border-indigo-800 shadow-sm min-w-25">
                   <span className="text-3xl font-black text-indigo-700 dark:text-indigo-400">
                     <SlidingNumber value={scoreStats.accuracy} />%
                   </span>

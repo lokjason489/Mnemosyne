@@ -148,7 +148,7 @@ export const HomePage: React.FC = () => {
           />
           <div
             className={cn(
-              'absolute top-1/3 -right-40 w-[28rem] h-[28rem] rounded-full blur-3xl opacity-25 animate-pulse-slow',
+              'absolute top-1/3 -right-40 w-md h-112 rounded-full blur-3xl opacity-25 animate-pulse-slow',
               mode === 'dark' ? 'bg-purple-600' : 'bg-purple-300'
             )}
             style={{ animationDelay: '3s' }}
@@ -173,7 +173,7 @@ export const HomePage: React.FC = () => {
           >
             {/* Branding Logo */}
             <div className="flex items-center gap-3 select-none">
-              <div className="relative flex items-center justify-center w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-600 to-purple-600 text-white shadow-md shadow-indigo-500/30">
+              <div className="relative flex items-center justify-center w-10 h-10 rounded-2xl bg-linear-to-tr from-indigo-600 to-purple-600 text-white shadow-md shadow-indigo-500/30">
                 <Brain className="w-5 h-5" />
                 <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
@@ -181,7 +181,7 @@ export const HomePage: React.FC = () => {
                 </span>
               </div>
               <div className="flex flex-col">
-                <span className="text-xl font-black tracking-tight bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 dark:from-indigo-400 dark:via-purple-400 dark:to-pink-400 bg-clip-text text-transparent">
+                <span className="text-xl font-black tracking-tight bg-linear-to-r from-indigo-600 via-purple-600 to-pink-600 dark:from-indigo-400 dark:via-purple-400 dark:to-pink-400 bg-clip-text text-transparent">
                   Mnemosyne
                 </span>
                 <span className="text-[10px] font-bold text-slate-600 dark:text-slate-400 tracking-wider uppercase">

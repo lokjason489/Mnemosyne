@@ -170,7 +170,7 @@ export const MemoryGame: React.FC = () => {
                 variant="primary"
                 size="lg"
                 onClick={handleStartGame}
-                className="w-full max-w-xs mt-2 bg-gradient-to-r from-amber-600 to-orange-600 hover:shadow-amber-500/30"
+                className="w-full max-w-xs mt-2 bg-linear-to-r from-amber-600 to-orange-600 hover:shadow-amber-500/30"
               >
                 <Play className="w-5 h-5 fill-current" />
                 <span>{t('start')}</span>
@@ -205,7 +205,7 @@ export const MemoryGame: React.FC = () => {
               </div>
 
               {/* Status Hint with clear states */}
-              <div className="text-xs font-bold uppercase tracking-wider flex items-center justify-center min-h-[28px]">
+              <div className="text-xs font-bold uppercase tracking-wider flex items-center justify-center min-h-7">
                 {gameState === GAME_STATE.SHOWING ? (
                   isPreparing ? (
                     <span className="flex items-center gap-1.5 text-amber-700 dark:text-amber-400 font-bold bg-amber-50 dark:bg-amber-950/50 px-3 py-1 rounded-full border border-amber-200 dark:border-amber-800 animate-pulse">
@@ -251,9 +251,9 @@ export const MemoryGame: React.FC = () => {
                       className={cn(
                         'rounded-2xl transition-all duration-150 aspect-square cursor-pointer border-2',
                         isIlluminated
-                          ? 'bg-gradient-to-tr from-amber-400 to-orange-500 border-amber-200 shadow-xl shadow-amber-500/70 scale-105 ring-4 ring-amber-400/50 z-10'
+                          ? 'bg-linear-to-tr from-amber-400 to-orange-500 border-amber-200 shadow-xl shadow-amber-500/70 scale-105 ring-4 ring-amber-400/50 z-10'
                           : isSelected
-                            ? 'bg-gradient-to-tr from-indigo-500 to-purple-600 border-indigo-400 text-white shadow-md shadow-indigo-500/30 scale-95'
+                            ? 'bg-linear-to-tr from-indigo-500 to-purple-600 border-indigo-400 text-white shadow-md shadow-indigo-500/30 scale-95'
                             : 'bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 hover:border-amber-400 dark:hover:border-amber-500 hover:bg-amber-50/40 dark:hover:bg-slate-750 shadow-sm'
                       )}
                     />
@@ -314,7 +314,7 @@ export const MemoryGame: React.FC = () => {
               </div>
 
               <div className="flex items-center gap-4 justify-center">
-                <div className="flex flex-col items-center p-4 rounded-2xl bg-white dark:bg-slate-800 border-2 border-slate-300 dark:border-slate-700 min-w-[120px] shadow-sm">
+                <div className="flex flex-col items-center p-4 rounded-2xl bg-white dark:bg-slate-800 border-2 border-slate-300 dark:border-slate-700 min-w-30 shadow-sm">
                   <span className="text-3xl font-black text-slate-900 dark:text-slate-100">
                     <SlidingNumber value={level} />
                   </span>
@@ -323,7 +323,7 @@ export const MemoryGame: React.FC = () => {
                   </span>
                 </div>
 
-                <div className="flex flex-col items-center p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border-2 border-amber-300 dark:border-amber-800 min-w-[120px] shadow-sm">
+                <div className="flex flex-col items-center p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border-2 border-amber-300 dark:border-amber-800 min-w-30 shadow-sm">
                   <span className="text-3xl font-black text-amber-700 dark:text-amber-400">
                     <SlidingNumber value={score} />
                   </span>

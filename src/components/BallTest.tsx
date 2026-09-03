@@ -257,7 +257,7 @@ export const BallTest: React.FC<Props> = () => {
               {/* Countdown Bar */}
               <div className="w-full max-w-xs bg-slate-300 dark:bg-slate-800 h-2.5 rounded-full overflow-hidden mt-1 border border-slate-300/80">
                 <motion.div
-                  className="bg-gradient-to-r from-emerald-500 to-teal-400 h-full rounded-full"
+                  className="bg-linear-to-r from-emerald-500 to-teal-400 h-full rounded-full"
                   style={{ width: `${timerProgress}%` }}
                 />
               </div>
@@ -353,7 +353,7 @@ export const BallTest: React.FC<Props> = () => {
 
               {/* Compare Cards with High Contrast */}
               <div className="flex items-center gap-4 justify-center">
-                <div className="flex flex-col items-center p-4 rounded-2xl bg-white dark:bg-slate-800 border-2 border-slate-300 dark:border-slate-700 min-w-[120px] shadow-sm">
+                <div className="flex flex-col items-center p-4 rounded-2xl bg-white dark:bg-slate-800 border-2 border-slate-300 dark:border-slate-700 min-w-30 shadow-sm">
                   <span className="text-3xl font-black text-slate-900 dark:text-slate-100">
                     <SlidingNumber value={userInput} />
                   </span>
@@ -364,7 +364,7 @@ export const BallTest: React.FC<Props> = () => {
 
                 <div className="text-2xl font-black text-slate-400">vs</div>
 
-                <div className="flex flex-col items-center p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border-2 border-emerald-300 dark:border-emerald-800 min-w-[120px] shadow-sm">
+                <div className="flex flex-col items-center p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border-2 border-emerald-300 dark:border-emerald-800 min-w-30 shadow-sm">
                   <span className="text-3xl font-black text-emerald-700 dark:text-emerald-400">
                     <SlidingNumber value={actualBallCount} />
                   </span>
