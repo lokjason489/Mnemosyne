@@ -176,7 +176,7 @@ export const BallTest: React.FC<Props> = () => {
                       className={cn(
                         'flex-1 py-2 text-xs rounded-xl transition-all duration-200 cursor-pointer',
                         isSelected
-                          ? 'bg-gradient-to-b from-white to-white/95 dark:from-white/20 dark:to-white/10 text-indigo-700 dark:text-white shadow-[inset_0_1px_1px_rgba(255,255,255,1),0_2px_8px_rgba(15,23,42,0.12)] border border-slate-200/80 dark:border-white/20 font-black'
+                          ? 'bg-linear-to-b from-white to-white/95 dark:from-white/20 dark:to-white/10 text-indigo-700 dark:text-white shadow-[inset_0_1px_1px_rgba(255,255,255,1),0_2px_8px_rgba(15,23,42,0.12)] border border-slate-200/80 dark:border-white/20 font-black'
                           : 'text-slate-800 dark:text-slate-300 font-bold hover:text-slate-950 dark:hover:text-white hover:bg-white/40 dark:hover:bg-white/5'
                       )}
                     >
@@ -216,7 +216,7 @@ export const BallTest: React.FC<Props> = () => {
               {/* Liquid Glass Canvas */}
               <div className="relative rounded-3xl overflow-hidden liquid-glass-card w-full max-w-lg aspect-video flex items-center justify-center">
                 {/* Specular top rim */}
-                <div className="absolute inset-x-6 top-0 h-[1.5px] bg-gradient-to-r from-transparent via-white/90 dark:via-white/40 to-transparent pointer-events-none" />
+                <div className="absolute inset-x-6 top-0 h-[1.5px] bg-linear-to-r from-transparent via-white/90 dark:via-white/40 to-transparent pointer-events-none" />
                 <svg
                   viewBox="0 0 500 300"
                   role="img"
@@ -333,7 +333,7 @@ export const BallTest: React.FC<Props> = () => {
 
               {/* Glass Comparison Cards */}
               <div className="flex items-center gap-4 justify-center">
-                <div className="flex flex-col items-center p-6 rounded-3xl liquid-glass-card min-w-[130px]">
+                <div className="flex flex-col items-center p-6 rounded-3xl liquid-glass-card min-w-32.5">
                   <span className="text-4xl font-black font-mono text-slate-950 dark:text-white mb-1">
                     <SlidingNumber value={userInput} />
                   </span>
@@ -344,7 +344,7 @@ export const BallTest: React.FC<Props> = () => {
 
                 <div className="text-lg font-black text-slate-700 dark:text-slate-400">vs</div>
 
-                <div className="flex flex-col items-center p-6 rounded-3xl liquid-glass-card min-w-[130px]">
+                <div className="flex flex-col items-center p-6 rounded-3xl liquid-glass-card min-w-32.5">
                   <span className="text-4xl font-black font-mono text-indigo-700 dark:text-indigo-400 mb-1">
                     <SlidingNumber value={actualBallCount} />
                   </span>

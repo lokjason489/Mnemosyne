@@ -151,7 +151,7 @@ export const MemoryGame: React.FC = () => {
               transition={{ duration: 0.15 }}
               className="flex flex-col items-center text-center gap-6"
             >
-              <div className="flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500/20 to-purple-500/20 dark:from-indigo-500/30 dark:to-purple-500/30 text-indigo-600 dark:text-indigo-400 border border-white/60 dark:border-white/10 shadow-[inset_0_1px_1px_rgba(255,255,255,0.6)] backdrop-blur-md">
+              <div className="flex items-center justify-center w-12 h-12 rounded-2xl bg-linear-to-br from-indigo-500/20 to-purple-500/20 dark:from-indigo-500/30 dark:to-purple-500/30 text-indigo-600 dark:text-indigo-400 border border-white/60 dark:border-white/10 shadow-[inset_0_1px_1px_rgba(255,255,255,0.6)] backdrop-blur-md">
                 <Grid3X3 className="w-6 h-6" />
               </div>
 
@@ -235,7 +235,7 @@ export const MemoryGame: React.FC = () => {
                 }}
               >
                 {/* Specular top sheen */}
-                <div className="absolute inset-x-6 top-0 h-[1.5px] bg-gradient-to-r from-transparent via-white/90 dark:via-white/40 to-transparent pointer-events-none" />
+                <div className="absolute inset-x-6 top-0 h-[1.5px] bg-linear-to-r from-transparent via-white/90 dark:via-white/40 to-transparent pointer-events-none" />
                 {Array.from({ length: gridSize * gridSize }).map((_, index) => {
                   const isIlluminated = activeBlock === index;
                   const isSelected = userSequence.includes(index);
@@ -247,7 +247,7 @@ export const MemoryGame: React.FC = () => {
                       className={cn(
                         'rounded-2xl transition-all duration-150 aspect-square cursor-pointer',
                         isIlluminated
-                          ? 'bg-gradient-to-br from-indigo-500 via-indigo-600 to-violet-600 border border-white/70 shadow-[0_0_30px_rgba(99,102,241,0.7),inset_0_1.5px_2px_rgba(255,255,255,0.9)] scale-102 ring-2 ring-indigo-400/50'
+                          ? 'bg-linear-to-br from-indigo-500 via-indigo-600 to-violet-600 border border-white/70 shadow-[0_0_30px_rgba(99,102,241,0.7),inset_0_1.5px_2px_rgba(255,255,255,0.9)] scale-102 ring-2 ring-indigo-400/50'
                           : isSelected
                             ? 'liquid-glass-pill scale-98'
                             : 'liquid-glass-subtle hover:brightness-105 active:scale-96'
@@ -269,7 +269,7 @@ export const MemoryGame: React.FC = () => {
               transition={{ duration: 0.15 }}
               className="flex flex-col items-center text-center gap-6"
             >
-              <div className="flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-teal-500/20 dark:from-emerald-500/30 dark:to-teal-500/30 text-emerald-600 dark:text-emerald-400 border border-white/60 dark:border-white/10 shadow-[inset_0_1px_1px_rgba(255,255,255,0.6)] backdrop-blur-md">
+              <div className="flex items-center justify-center w-12 h-12 rounded-2xl bg-linear-to-br from-emerald-500/20 to-teal-500/20 dark:from-emerald-500/30 dark:to-teal-500/30 text-emerald-600 dark:text-emerald-400 border border-white/60 dark:border-white/10 shadow-[inset_0_1px_1px_rgba(255,255,255,0.6)] backdrop-blur-md">
                 <Sparkles className="w-6 h-6" />
               </div>
 

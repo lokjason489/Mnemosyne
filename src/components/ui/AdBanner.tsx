@@ -15,10 +15,10 @@ interface AdBannerProps {
 export const AdBanner: React.FC<AdBannerProps> = ({
   adClient = 'ca-pub-6995811232744511',
   adSlot,
-  adFormat = 'auto',
-  fullWidthResponsive = true,
+  adFormat = 'horizontal',
+  fullWidthResponsive = false,
   className,
-  showLabel = true,
+  showLabel = false,
 }) => {
   const { t } = useTranslation();
   const adRef = useRef<HTMLModElement>(null);
@@ -46,25 +46,25 @@ export const AdBanner: React.FC<AdBannerProps> = ({
   return (
     <div
       className={cn(
-        'w-full rounded-2xl liquid-glass-card p-3 sm:p-4 text-center overflow-hidden flex flex-col items-center justify-center relative min-h-[100px]',
+        'w-full max-w-lg rounded-xl liquid-glass-subtle px-2.5 py-1 text-center overflow-hidden flex flex-col items-center justify-center relative min-h-11.5 max-h-16',
         className
       )}
     >
       {showLabel && (
-        <div className="w-full flex items-center justify-center gap-2 mb-1.5 select-none">
-          <span className="h-[1px] w-8 bg-slate-300 dark:bg-white/10" />
-          <span className="text-[10px] font-bold tracking-widest text-slate-400 dark:text-slate-500 uppercase">
+        <div className="w-full flex items-center justify-center gap-1.5 mb-0.5 select-none">
+          <span className="h-px w-4 bg-slate-300 dark:bg-white/10" />
+          <span className="text-[8px] font-bold tracking-widest text-slate-400 dark:text-slate-500 uppercase">
             {t('advertisement', 'ADVERTISEMENT')}
           </span>
-          <span className="h-[1px] w-8 bg-slate-300 dark:bg-white/10" />
+          <span className="h-px w-4 bg-slate-300 dark:bg-white/10" />
         </div>
       )}
 
-      <div className="w-full overflow-hidden flex items-center justify-center min-h-[90px]">
+      <div className="w-full overflow-hidden flex items-center justify-center min-h-9.5 max-h-12">
         <ins
           ref={adRef}
           className="adsbygoogle block w-full"
-          style={{ display: 'block', minHeight: '90px' }}
+          style={{ display: 'inline-block', width: '100%', height: '46px', maxHeight: '48px' }}
           data-ad-client={adClient}
           {...(adSlot ? { 'data-ad-slot': adSlot } : {})}
           data-ad-format={adFormat}

@@ -10,6 +10,7 @@
 html,
 body,
 #root {
+  min-height: 100dvh;
   height: 100%;
   width: 100%;
   margin: 0;
@@ -28,6 +29,12 @@ body {
 .dark body {
   background-color: #080b11;
   color: #f8fafc;
+}
+
+#root {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
 }
 
 /* Real Liquid Glass (流動液態玻璃) Core Design System - Ultra-Clear & Specular */

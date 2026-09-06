@@ -123,8 +123,8 @@ export const HomePage: React.FC = () => {
             main: mode === 'dark' ? '#d4d4d4' : '#525252',
           },
           background: {
-            default: mode === 'dark' ? '#000000' : '#ffffff',
-            paper: mode === 'dark' ? '#0a0a0a' : '#ffffff',
+            default: mode === 'dark' ? '#080b11' : '#f1f5f9',
+            paper: mode === 'dark' ? '#0f141f' : '#ffffff',
           },
           text: {
             primary: mode === 'dark' ? '#ffffff' : '#000000',
@@ -140,6 +140,30 @@ export const HomePage: React.FC = () => {
       }),
     [mode]
   );
+
+  // Prevent Google AdSense from setting destructive "min-height: 0px !important" on root elements
+  useEffect(() => {
+    const root = document.getElementById('root');
+    const container = document.getElementById('app-container');
+
+    const cleanInlineStyles = () => {
+      if (root?.style.minHeight === '0px' || root?.style.height === 'auto') {
+        root.style.removeProperty('min-height');
+        root.style.removeProperty('height');
+      }
+      if (container?.style.minHeight === '0px' || container?.style.height === 'auto') {
+        container.style.removeProperty('min-height');
+        container.style.removeProperty('height');
+      }
+    };
+
+    cleanInlineStyles();
+    const observer = new MutationObserver(cleanInlineStyles);
+    if (root) observer.observe(root, { attributes: true, attributeFilter: ['style'] });
+    if (container) observer.observe(container, { attributes: true, attributeFilter: ['style'] });
+
+    return () => observer.disconnect();
+  }, []);
 
   // Tab Definitions
   const tabs: TabItem[] = useMemo(
@@ -193,8 +217,9 @@ export const HomePage: React.FC = () => {
     <ThemeProvider theme={muiTheme}>
       <CssBaseline />
       <div
+        id="app-container"
         className={cn(
-          'min-h-screen w-full flex flex-col font-sans transition-colors duration-200 relative selection:bg-indigo-500/20',
+          'min-h-dvh w-full flex-1 flex flex-col justify-between font-sans transition-colors duration-200 relative selection:bg-indigo-500/20',
           mode === 'dark' ? 'bg-[#080b11] text-slate-100' : 'bg-[#f1f5f9] text-slate-950'
         )}
       >
@@ -215,7 +240,7 @@ export const HomePage: React.FC = () => {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.2 }}
-                className="absolute top-0 left-0 w-[640px] h-[640px] rounded-full blur-[80px] will-change-transform"
+                className="absolute top-0 left-0 w-160 h-160 rounded-full blur-[80px] will-change-transform"
               />
             </div>
           )}
@@ -230,11 +255,11 @@ export const HomePage: React.FC = () => {
             )}
           >
             {/* Specular top rim highlight */}
-            <div className="absolute inset-x-8 top-0 h-[1.5px] bg-gradient-to-r from-transparent via-white/80 dark:via-white/35 to-transparent pointer-events-none" />
+            <div className="absolute inset-x-8 top-0 h-[1.5px] bg-linear-to-r from-transparent via-white/80 dark:via-white/35 to-transparent pointer-events-none" />
 
             {/* Modern Logo */}
             <div className="flex items-center gap-3 select-none relative z-10">
-              <div className="flex items-center justify-center w-8 h-8 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 text-white shadow-lg shadow-indigo-500/30 border border-white/20">
+              <div className="flex items-center justify-center w-8 h-8 rounded-xl bg-linear-to-br from-indigo-500 to-violet-600 text-white shadow-lg shadow-indigo-500/30 border border-white/20">
                 <Brain className="w-4 h-4" />
               </div>
               <div className="flex flex-col">
@@ -266,7 +291,7 @@ export const HomePage: React.FC = () => {
                   className={cn(
                     'flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-xl cursor-pointer',
                     'liquid-glass-border-only',
-                    'text-slate-950 dark:text-slate-200 hover:bg-black/[0.03] dark:hover:bg-white/[0.05]',
+                    'text-slate-950 dark:text-slate-200 hover:bg-black/3 dark:hover:bg-white/5',
                     'transition-colors duration-150 outline-none'
                   )}
                   aria-label={t('change_language', 'Change Language')}
@@ -288,7 +313,7 @@ export const HomePage: React.FC = () => {
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: 6, scale: 0.96 }}
                       transition={{ duration: 0.12, ease: 'easeOut' }}
-                      className="!absolute top-[calc(100%+8px)] right-0 w-36 rounded-2xl p-1.5 z-50 liquid-glass-dropdown shadow-2xl"
+                      className="absolute! top-[calc(100%+8px)] right-0 w-36 rounded-2xl p-1.5 z-50 liquid-glass-dropdown shadow-2xl"
                     >
                       {languageList.map((item) => (
                         <button
@@ -317,7 +342,7 @@ export const HomePage: React.FC = () => {
                 className={cn(
                   'p-2 rounded-xl cursor-pointer text-slate-950 dark:text-slate-200',
                   'liquid-glass-border-only',
-                  'hover:bg-black/[0.03] dark:hover:bg-white/[0.05] transition-colors duration-150'
+                  'hover:bg-black/3 dark:hover:bg-white/5 transition-colors duration-150'
                 )}
                 aria-label={t('toggle_theme', 'Toggle Theme')}
               >
@@ -332,7 +357,7 @@ export const HomePage: React.FC = () => {
         </header>
 
         {/* Main Content Area */}
-        <main className="relative z-10 flex-1 max-w-4xl w-full mx-auto px-4 py-8 flex flex-col items-center justify-center">
+        <main className="relative z-10 flex-1 max-w-4xl w-full mx-auto px-4 py-4 sm:py-6 flex flex-col items-center justify-center">
           <AnimatePresence mode="wait">
             <motion.div
               key={activeTab}
@@ -351,9 +376,9 @@ export const HomePage: React.FC = () => {
         </main>
 
         {/* Footer Area with Google Ads Banner */}
-        <footer className="relative z-10 w-full max-w-4xl mx-auto px-4 pb-8 pt-2 flex flex-col items-center gap-4">
+        <footer className="relative z-10 w-full max-w-lg mx-auto px-4 pb-3 pt-1 flex flex-col items-center gap-1.5 select-none shrink-0">
           <AdBanner adClient="ca-pub-6995811232744511" className="w-full" />
-          <div className="flex flex-col sm:flex-row items-center justify-between w-full text-xs font-semibold text-slate-600 dark:text-slate-400 px-2 select-none gap-2">
+          <div className="flex flex-col sm:flex-row items-center justify-between w-full text-[11px] font-medium text-slate-500 dark:text-slate-400 px-1 gap-1">
             <span>© {new Date().getFullYear()} Mnemosyne Cognitive Lab</span>
             <span className="opacity-75">
               {t('cognitive_training', 'Cognitive & Memory Training')}

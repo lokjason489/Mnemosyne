@@ -25,9 +25,9 @@ export const GlowCard: React.FC<GlowCardProps> = ({ children, className, ...prop
       {/* Specular fluid light reflections */}
       <div className="absolute inset-0 rounded-[inherit] pointer-events-none overflow-hidden">
         {/* Soft curved reflection sheen */}
-        <div className="absolute -top-[50%] -left-[15%] w-[130%] h-[90%] rounded-full bg-gradient-to-b from-white/35 via-white/5 to-transparent dark:from-white/10 pointer-events-none" />
+        <div className="absolute top-[-50%] left-[-15%] w-[130%] h-[90%] rounded-full bg-linear-to-b from-white/35 via-white/5 to-transparent dark:from-white/10 pointer-events-none" />
         {/* Top edge crisp specular light rim */}
-        <div className="absolute inset-x-8 top-0 h-[1.5px] bg-gradient-to-r from-transparent via-white/90 dark:via-white/40 to-transparent" />
+        <div className="absolute inset-x-8 top-0 h-[1.5px] bg-linear-to-r from-transparent via-white/90 dark:via-white/40 to-transparent" />
       </div>
 
       <div className="relative z-10">{children}</div>

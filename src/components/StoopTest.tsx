@@ -135,7 +135,7 @@ export const StoopTest: React.FC<Props> = () => {
               transition={{ duration: 0.12 }}
               className="flex flex-col items-center text-center gap-6"
             >
-              <div className="flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500/20 to-purple-500/20 dark:from-indigo-500/30 dark:to-purple-500/30 text-indigo-600 dark:text-indigo-400 border border-white/60 dark:border-white/10 shadow-[inset_0_1px_1px_rgba(255,255,255,0.6)] backdrop-blur-md">
+              <div className="flex items-center justify-center w-12 h-12 rounded-2xl bg-linear-to-br from-indigo-500/20 to-purple-500/20 dark:from-indigo-500/30 dark:to-purple-500/30 text-indigo-600 dark:text-indigo-400 border border-white/60 dark:border-white/10 shadow-[inset_0_1px_1px_rgba(255,255,255,0.6)] backdrop-blur-md">
                 <Palette className="w-6 h-6" />
               </div>
 
@@ -198,7 +198,7 @@ export const StoopTest: React.FC<Props> = () => {
               {/* Clean Viewport for Stroop Word */}
               <div className="w-full max-w-md h-44 rounded-3xl flex items-center justify-center liquid-glass-card relative overflow-hidden">
                 {/* Specular top sheen */}
-                <div className="absolute inset-x-6 top-0 h-[1.5px] bg-gradient-to-r from-transparent via-white/90 dark:via-white/40 to-transparent pointer-events-none" />
+                <div className="absolute inset-x-6 top-0 h-[1.5px] bg-linear-to-r from-transparent via-white/90 dark:via-white/40 to-transparent pointer-events-none" />
                 <AnimatePresence mode="wait">
                   <motion.span
                     key={`${round}-${currentWord.nameKey}-${currentInk.nameKey}`}

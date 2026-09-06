@@ -100,7 +100,7 @@ export const FloatingAmbientControl: React.FC<FloatingAmbientControlProps> = ({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 12, scale: 0.95 }}
             transition={{ duration: 0.15, ease: 'easeOut' }}
-            className="!absolute bottom-16 right-0 w-72 p-4 rounded-3xl liquid-glass-dropdown shadow-2xl space-y-4"
+            className="absolute! bottom-16 right-0 w-72 p-4 rounded-3xl liquid-glass-dropdown shadow-2xl space-y-4"
           >
             {/* Header with Title and Toggle */}
             <div className="flex items-center justify-between">
