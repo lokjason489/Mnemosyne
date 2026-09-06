@@ -1,5 +1,5 @@
 import confetti from 'canvas-confetti';
-import { Delete, Keyboard, Play, RotateCcw, Sparkles, Zap } from 'lucide-react';
+import { Delete, Hash, Keyboard, Play, RotateCcw, Sparkles } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -44,25 +44,25 @@ export const NumberTest: React.FC<Props> = () => {
 
   // Timer loop for memorizing phase
   useEffect(() => {
-    if (phase === 'memorizing') {
-      setCurrentIndex(0);
-      let count = 0;
+    if (phase !== 'memorizing') return;
 
-      timerRef.current = setInterval(() => {
-        count += 1;
-        setCurrentIndex(count);
-        setTimerProgress((count / level) * 100);
+    setCurrentIndex(0);
+    let count = 0;
 
-        if (count >= level) {
-          if (timerRef.current) clearInterval(timerRef.current);
-          setPhase('input');
-        }
-      }, 1000);
+    timerRef.current = setInterval(() => {
+      count += 1;
+      setCurrentIndex(count);
+      setTimerProgress((count / level) * 100);
 
-      return () => {
+      if (count >= level) {
         if (timerRef.current) clearInterval(timerRef.current);
-      };
-    }
+        setPhase('input');
+      }
+    }, 1000);
+
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
   }, [phase, level]);
 
   // Handle single digit input
@@ -79,7 +79,7 @@ export const NumberTest: React.FC<Props> = () => {
           }
           if (correct / numbers.length >= 0.7) {
             confetti({
-              particleCount: 80,
+              particleCount: 70,
               spread: 70,
               origin: { y: 0.6 },
             });
@@ -125,33 +125,34 @@ export const NumberTest: React.FC<Props> = () => {
   }, [phase, numbers, userInputArray]);
 
   return (
-    <div className="w-full max-w-2xl mx-auto">
-      <GlowCard className="p-6 md:p-8" glowColor="rgba(99, 102, 241, 0.2)">
+    <div className="w-full max-w-xl mx-auto">
+      <GlowCard className="p-6 md:p-8">
         <AnimatePresence mode="wait">
           {/* 1. READY PHASE */}
           {phase === 'ready' && (
             <motion.div
               key="ready"
-              initial={{ opacity: 0, y: 10 }}
+              initial={{ opacity: 0, y: 6 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: 0.12 }}
               className="flex flex-col items-center text-center gap-6"
             >
-              <div className="flex items-center justify-center w-16 h-16 rounded-3xl bg-indigo-100 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-400 border-2 border-indigo-300 dark:border-indigo-800 shadow-sm">
-                <Zap className="w-8 h-8" />
+              <div className="flex items-center justify-center w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 shadow-[inset_0_1px_1px_rgba(255,255,255,0.4),0_4px_12px_rgba(0,0,0,0.05)] border border-white/50 dark:border-white/10">
+                <Hash className="w-6 h-6" />
               </div>
 
-              <div className="space-y-2">
-                <h2 className="text-2xl md:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+              <div className="space-y-1.5">
+                <h2 className="text-2xl font-black text-slate-950 dark:text-white tracking-tight">
                   {t('NumberTest')}
                 </h2>
-                <p className="text-sm md:text-base text-slate-700 dark:text-slate-300 font-medium max-w-md">
+                <p className="text-xs md:text-sm font-semibold text-slate-800 dark:text-neutral-300 max-w-md leading-relaxed">
                   {t('Number_desc')}
                 </p>
               </div>
 
-              {/* Difficulty Selection Pills with High Contrast */}
-              <div className="w-full max-w-md bg-slate-200/90 dark:bg-slate-800/80 p-1.5 rounded-2xl border border-slate-300 dark:border-slate-700 flex justify-between gap-1 shadow-inner">
+              {/* Liquid Glass Range Selector */}
+              <div className="w-full max-w-sm liquid-glass-subtle p-1.5 rounded-2xl flex justify-between gap-1">
                 {[
                   { label: t('easy'), val: 6 },
                   { label: t('medium'), val: 8 },
@@ -161,10 +162,10 @@ export const NumberTest: React.FC<Props> = () => {
                     key={item.val}
                     onClick={() => setLevel(item.val)}
                     className={cn(
-                      'flex-1 py-2 text-xs md:text-sm font-bold rounded-xl transition-all cursor-pointer',
+                      'flex-1 py-2 text-xs rounded-xl transition-all duration-200 cursor-pointer',
                       level === item.val
-                        ? 'bg-indigo-600 text-white shadow-md'
-                        : 'text-slate-800 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white hover:bg-white/50'
+                        ? 'bg-gradient-to-b from-white to-white/95 dark:from-white/20 dark:to-white/10 text-indigo-700 dark:text-white shadow-[inset_0_1px_1px_rgba(255,255,255,1),0_2px_8px_rgba(15,23,42,0.12)] border border-slate-200/80 dark:border-white/20 font-black'
+                        : 'text-slate-800 dark:text-slate-300 font-bold hover:text-slate-950 dark:hover:text-white hover:bg-white/40 dark:hover:bg-white/5'
                     )}
                   >
                     {item.label} ({item.val})
@@ -176,9 +177,9 @@ export const NumberTest: React.FC<Props> = () => {
                 variant="primary"
                 size="lg"
                 onClick={startTest}
-                className="w-full max-w-xs mt-2"
+                className="w-full max-w-xs mt-1"
               >
-                <Play className="w-5 h-5 fill-current" />
+                <Play className="w-4 h-4 fill-current" />
                 <span>{t('start')}</span>
               </TactileButton>
             </motion.div>
@@ -188,38 +189,41 @@ export const NumberTest: React.FC<Props> = () => {
           {phase === 'memorizing' && (
             <motion.div
               key="memorizing"
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="flex flex-col items-center justify-center min-h-85 text-center gap-6"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.12 }}
+              className="flex flex-col items-center justify-center min-h-75 text-center gap-6"
             >
-              <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-indigo-700 dark:text-indigo-300 bg-indigo-100 dark:bg-indigo-950/70 px-3.5 py-1.5 rounded-full border-2 border-indigo-300 dark:border-indigo-800 shadow-sm">
+              <div className="flex items-center gap-1.5 text-xs font-bold text-indigo-700 dark:text-indigo-300 bg-indigo-50/90 dark:bg-indigo-500/20 px-4 py-1.5 rounded-full border border-indigo-200 dark:border-indigo-500/40">
                 <Sparkles className="w-3.5 h-3.5" />
                 <span>
-                  {t('level')}: {currentIndex + 1} / {level}
+                  {t('currNum')}: {currentIndex + 1} / {level}
                 </span>
               </div>
 
-              {/* High Contrast Flashing Digit Display Card */}
-              <div className="relative flex items-center justify-center w-40 h-40 md:w-48 md:h-48 rounded-3xl bg-slate-950 border-2 border-slate-300 dark:border-slate-700 shadow-2xl">
+              {/* Liquid Glass Display Frame */}
+              <div className="relative flex items-center justify-center w-44 h-44 md:w-52 md:h-52 rounded-3xl liquid-glass-card">
+                {/* Specular top sheen */}
+                <div className="absolute inset-x-6 top-0 h-[1.5px] bg-gradient-to-r from-transparent via-white/90 dark:via-white/40 to-transparent pointer-events-none" />
                 <AnimatePresence mode="wait">
                   <motion.span
                     key={currentIndex}
-                    initial={{ opacity: 0, scale: 0.5, y: 15 }}
-                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 1.2, y: -15 }}
-                    transition={{ duration: 0.2 }}
-                    className="text-7xl md:text-8xl font-black tracking-tighter text-white drop-shadow-[0_0_25px_rgba(99,102,241,0.8)] select-none font-mono"
+                    initial={{ opacity: 0, scale: 0.85, filter: 'blur(4px)' }}
+                    animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
+                    exit={{ opacity: 0, scale: 1.05, filter: 'blur(4px)' }}
+                    transition={{ duration: 0.15 }}
+                    className="text-8xl font-black tracking-tighter text-indigo-700 dark:text-indigo-400 font-mono select-none drop-shadow-md"
                   >
                     {numbers[currentIndex] ?? '-'}
                   </motion.span>
                 </AnimatePresence>
               </div>
 
-              {/* Progress Bar */}
-              <div className="w-full max-w-xs bg-slate-300 dark:bg-slate-800 h-2.5 rounded-full overflow-hidden border border-slate-300/80">
+              {/* Liquid Progress Line */}
+              <div className="w-full max-w-xs bg-slate-200/50 dark:bg-slate-800/50 h-2 rounded-full overflow-hidden border border-white/50 dark:border-white/10 shadow-inner mt-2">
                 <motion.div
-                  className="bg-linear-to-rrom-indigo-500 to-purple-600 h-full rounded-full"
+                  className="bg-indigo-500 h-full rounded-full shadow-[0_0_10px_rgba(99,102,241,0.5)]"
                   style={{ width: `${timerProgress}%` }}
                   transition={{ ease: 'linear' }}
                 />
@@ -231,21 +235,22 @@ export const NumberTest: React.FC<Props> = () => {
           {phase === 'input' && (
             <motion.div
               key="input"
-              initial={{ opacity: 0, y: 10 }}
+              initial={{ opacity: 0, y: 6 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: 0.12 }}
               className="flex flex-col items-center text-center gap-6"
             >
               <div className="space-y-1">
-                <h3 className="text-xl md:text-2xl font-black text-slate-900 dark:text-white">
+                <h3 className="text-xl font-black text-slate-950 dark:text-white">
                   {t('inputNum')}
                 </h3>
-                <p className="text-xs md:text-sm font-semibold text-slate-600 dark:text-slate-400">
+                <p className="text-xs font-bold text-slate-800 dark:text-neutral-300">
                   {userInputArray.length} / {numbers.length}
                 </p>
               </div>
 
-              {/* Entered Digits Display Slots with Crisp Contrast */}
+              {/* Glass Digit Slots */}
               <div className="flex flex-wrap justify-center gap-2 max-w-md min-h-13">
                 {numbers.map((_, i) => {
                   const entered = userInputArray[i];
@@ -254,12 +259,12 @@ export const NumberTest: React.FC<Props> = () => {
                     <div
                       key={i}
                       className={cn(
-                        'w-10 h-12 md:w-11 md:h-14 rounded-xl border-2 flex items-center justify-center font-mono text-xl font-black transition-all',
+                        'w-10 h-13 md:w-12 md:h-16 rounded-xl flex items-center justify-center font-mono text-2xl font-black transition-all shadow-[inset_0_1px_1px_rgba(255,255,255,0.4)]',
                         entered !== undefined
-                          ? 'border-indigo-600 bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 shadow-sm'
+                          ? 'bg-white/95 dark:bg-white/15 text-indigo-700 dark:text-white border border-slate-300 dark:border-white/20 shadow-sm'
                           : isCurrent
-                            ? 'border-indigo-600 dark:border-indigo-400 ring-4 ring-indigo-500/25 bg-white dark:bg-slate-800 text-slate-900'
-                            : 'border-slate-300 dark:border-slate-700 bg-slate-100/90 dark:bg-slate-900/60 text-slate-400'
+                            ? 'bg-white/70 dark:bg-black/40 border-2 border-indigo-600 dark:border-indigo-400 ring-2 ring-indigo-500/30 text-indigo-700 dark:text-white'
+                            : 'bg-slate-200/40 dark:bg-black/20 border border-slate-300/80 dark:border-white/10 text-slate-400'
                       )}
                     >
                       {entered !== undefined ? entered : ''}
@@ -268,42 +273,36 @@ export const NumberTest: React.FC<Props> = () => {
                 })}
               </div>
 
-              {/* Tactile Virtual Keypad with Crisp Contrast */}
-              <div className="grid grid-cols-3 gap-2.5 w-full max-w-xs mt-2">
+              {/* Liquid Glass Keypad */}
+              <div className="grid grid-cols-3 gap-3 w-full max-w-xs mt-2">
                 {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((digit) => (
-                  <TactileButton
+                  <button
                     key={digit}
-                    variant="secondary"
-                    size="md"
                     onClick={() => handleDigitInput(digit)}
-                    className="h-13 text-xl font-black font-mono bg-white dark:bg-slate-800 border-2 border-slate-300 dark:border-slate-700 shadow-sm hover:bg-slate-100"
+                    className="h-14 text-2xl font-mono font-black rounded-2xl liquid-glass-pill text-slate-950 dark:text-white hover:brightness-105 active:scale-95 transition-all cursor-pointer"
                   >
                     {digit}
-                  </TactileButton>
+                  </button>
                 ))}
 
-                <TactileButton
-                  variant="outline"
-                  size="md"
+                <button
                   onClick={handleDelete}
-                  className="h-13 border-2 border-slate-300 dark:border-slate-700"
+                  className="h-14 flex items-center justify-center rounded-2xl liquid-glass-pill text-slate-950 dark:text-white hover:brightness-105 active:scale-95 transition-all cursor-pointer"
                   aria-label="Delete"
                 >
-                  <Delete className="w-5 h-5 text-slate-700 dark:text-slate-300" />
-                </TactileButton>
+                  <Delete className="w-6 h-6" />
+                </button>
 
-                <TactileButton
-                  variant="secondary"
-                  size="md"
+                <button
                   onClick={() => handleDigitInput(0)}
-                  className="h-13 text-xl font-black font-mono bg-white dark:bg-slate-800 border-2 border-slate-300 dark:border-slate-700 shadow-sm hover:bg-slate-100"
+                  className="h-14 text-2xl font-mono font-black rounded-2xl liquid-glass-pill text-slate-950 dark:text-white hover:brightness-105 active:scale-95 transition-all cursor-pointer"
                 >
                   0
-                </TactileButton>
+                </button>
 
-                <div className="h-13 flex items-center justify-center gap-1.5 text-xs font-bold text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700">
-                  <Keyboard className="w-3.5 h-3.5" />
-                  <span>Type</span>
+                <div className="h-14 flex items-center justify-center gap-1.5 text-xs font-bold text-slate-700 dark:text-slate-300 liquid-glass-subtle rounded-2xl">
+                  <Keyboard className="w-4 h-4" />
+                  <span>{t('Number_keyboard_hint')}</span>
                 </div>
               </div>
             </motion.div>
@@ -313,54 +312,53 @@ export const NumberTest: React.FC<Props> = () => {
           {phase === 'result' && (
             <motion.div
               key="result"
-              initial={{ opacity: 0, scale: 0.95 }}
+              initial={{ opacity: 0, scale: 0.98 }}
               animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
+              exit={{ opacity: 0, scale: 0.98 }}
+              transition={{ duration: 0.12 }}
               className="flex flex-col items-center text-center gap-6"
             >
               <div className="space-y-1">
-                <h3 className="text-2xl font-black text-slate-900 dark:text-white">
-                  {t('StoopTest_Result')}
+                <h3 className="text-xl font-black text-slate-950 dark:text-white">
+                  {t('NumberTest_Result')}
                 </h3>
-                <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">
-                  {scoreStats.accuracy >= 80
-                    ? '🌟 Excellent Memory Span!'
-                    : 'Keep training every day!'}
+                <p className="text-xs md:text-sm font-bold text-slate-800 dark:text-neutral-300">
+                  {scoreStats.accuracy >= 80 ? t('Number_excellent') : t('Number_keep_training')}
                 </p>
               </div>
 
-              {/* Accuracy Badges with High Contrast */}
-              <div className="flex items-center gap-4 md:gap-6 justify-center">
-                <div className="flex flex-col items-center p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border-2 border-emerald-300 dark:border-emerald-800 shadow-sm min-w-25">
-                  <span className="text-3xl font-black text-emerald-700 dark:text-emerald-400">
+              {/* Liquid Glass Metric Cards */}
+              <div className="flex flex-wrap items-center gap-4 justify-center">
+                <div className="flex flex-col items-center p-6 rounded-3xl liquid-glass-card min-w-[120px]">
+                  <span className="text-4xl font-black font-mono text-emerald-700 dark:text-emerald-400 mb-1">
                     <SlidingNumber value={scoreStats.correct} />
                   </span>
-                  <span className="text-xs font-bold text-emerald-800 dark:text-emerald-300 mt-1">
+                  <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
                     {t('correct_Ans')}
                   </span>
                 </div>
 
-                <div className="flex flex-col items-center p-4 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border-2 border-rose-300 dark:border-rose-800 shadow-sm min-w-25">
-                  <span className="text-3xl font-black text-rose-700 dark:text-rose-400">
+                <div className="flex flex-col items-center p-6 rounded-3xl liquid-glass-card min-w-[120px]">
+                  <span className="text-4xl font-black font-mono text-rose-600 dark:text-rose-400 mb-1">
                     <SlidingNumber value={scoreStats.wrong} />
                   </span>
-                  <span className="text-xs font-bold text-rose-800 dark:text-rose-300 mt-1">
+                  <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
                     {t('wrong_Ans')}
                   </span>
                 </div>
 
-                <div className="flex flex-col items-center p-4 rounded-2xl bg-indigo-50 dark:bg-indigo-950/40 border-2 border-indigo-300 dark:border-indigo-800 shadow-sm min-w-25">
-                  <span className="text-3xl font-black text-indigo-700 dark:text-indigo-400">
+                <div className="flex flex-col items-center p-6 rounded-3xl liquid-glass-card min-w-[120px]">
+                  <span className="text-4xl font-black font-mono text-indigo-700 dark:text-indigo-400 mb-1">
                     <SlidingNumber value={scoreStats.accuracy} />%
                   </span>
-                  <span className="text-xs font-bold text-indigo-800 dark:text-indigo-300 mt-1">
-                    {t('Score')}
+                  <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                    {t('accuracy')}
                   </span>
                 </div>
               </div>
 
               {/* Digit-by-Digit Breakdown */}
-              <div className="w-full max-w-lg p-4 rounded-2xl bg-white dark:bg-slate-800/60 border-2 border-slate-300 dark:border-slate-700 shadow-sm">
+              <div className="w-full max-w-md p-4 rounded-3xl liquid-glass-subtle">
                 <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
                   {numbers.map((num, i) => {
                     const isMatch = num === userInputArray[i];
@@ -368,14 +366,14 @@ export const NumberTest: React.FC<Props> = () => {
                       <div
                         key={i}
                         className={cn(
-                          'flex items-center justify-between p-2 rounded-xl text-xs font-mono font-black border-2',
+                          'flex items-center justify-between p-2 rounded-xl text-xs font-mono font-bold border',
                           isMatch
-                            ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-400 text-emerald-800 dark:text-emerald-300'
-                            : 'bg-rose-50 dark:bg-rose-950/40 border-rose-400 text-rose-800 dark:text-rose-300'
+                            ? 'border-emerald-200 dark:border-emerald-500/30 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-300'
+                            : 'border-rose-200 dark:border-rose-500/30 bg-rose-50 dark:bg-rose-500/10 text-rose-700 dark:text-rose-400'
                         )}
                       >
                         <span>{num}</span>
-                        <span>→</span>
+                        <span className="opacity-50">→</span>
                         <span>{userInputArray[i] ?? '-'}</span>
                       </div>
                     );
@@ -385,12 +383,12 @@ export const NumberTest: React.FC<Props> = () => {
 
               {/* Again Button */}
               <TactileButton
-                variant="primary"
+                variant="secondary"
                 size="lg"
                 onClick={() => setPhase('ready')}
                 className="w-full max-w-xs"
               >
-                <RotateCcw className="w-5 h-5" />
+                <RotateCcw className="w-4 h-4" />
                 <span>{t('again')}</span>
               </TactileButton>
             </motion.div>

@@ -1,24 +1,62 @@
 import { CssBaseline } from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { Brain, ChevronDown, Eye, Globe, Grid3X3, Hash, Moon, Palette, Sun } from 'lucide-react';
-import { AnimatePresence, motion } from 'motion/react';
+import { AnimatePresence, motion, useMotionValue, useSpring, useTransform } from 'motion/react';
 import type React from 'react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { BallTest, MemoryGame, NumberTest, StoopTest } from '../../components';
 import { AnimatedTabs, type TabItem } from '../../components/ui/AnimatedTabs';
+import { FloatingAmbientControl, GLOW_PRESETS } from '../../components/ui/FloatingAmbientControl';
 import { cn } from '../../utils/cn';
 
 export const HomePage: React.FC = () => {
   const { t, i18n } = useTranslation();
 
-  // Dark / Light Mode
+  // 1. Dark / Light Mode with localStorage persistence
   const [mode, setMode] = useState<'light' | 'dark'>(() => {
-    if (typeof window !== 'undefined' && window.matchMedia) {
-      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    if (typeof window !== 'undefined') {
+      const savedTheme = localStorage.getItem('mnemosyne_theme');
+      if (savedTheme === 'light' || savedTheme === 'dark') return savedTheme;
+      if (window.matchMedia?.('(prefers-color-scheme: dark)').matches) return 'dark';
     }
     return 'dark';
   });
+
+  useEffect(() => {
+    localStorage.setItem('mnemosyne_theme', mode);
+  }, [mode]);
+
+  // 2. Ambient Glow Enabled with localStorage persistence
+  const [glowEnabled, setGlowEnabled] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      const savedGlow = localStorage.getItem('mnemosyne_glow_enabled');
+      if (savedGlow !== null) return savedGlow === 'true';
+    }
+    return true;
+  });
+
+  useEffect(() => {
+    localStorage.setItem('mnemosyne_glow_enabled', String(glowEnabled));
+  }, [glowEnabled]);
+
+  // 3. Ambient Glow Color ID with localStorage persistence
+  const [glowColorId, setGlowColorId] = useState<string>(() => {
+    if (typeof window !== 'undefined') {
+      const savedColor = localStorage.getItem('mnemosyne_glow_color');
+      if (savedColor) return savedColor;
+    }
+    return 'indigo';
+  });
+
+  useEffect(() => {
+    localStorage.setItem('mnemosyne_glow_color', glowColorId);
+  }, [glowColorId]);
+
+  const activeGlowPreset = useMemo(
+    () => GLOW_PRESETS.find((p) => p.id === glowColorId) || GLOW_PRESETS[0],
+    [glowColorId]
+  );
 
   // Active Game Tab (0: Number, 1: Ball, 2: Stoop, 3: MemoryGame)
   const [activeTab, setActiveTab] = useState(0);
@@ -71,32 +109,32 @@ export const HomePage: React.FC = () => {
     setLangOpen(false);
   };
 
-  // MUI Theme to match modern palette
+  // High-Contrast Linear MUI Theme
   const muiTheme = useMemo(
     () =>
       createTheme({
         palette: {
           mode,
           primary: {
-            main: '#6366f1', // Indigo
+            main: mode === 'dark' ? '#ffffff' : '#000000',
           },
           secondary: {
-            main: '#a855f7', // Purple
+            main: mode === 'dark' ? '#d4d4d4' : '#525252',
           },
           background: {
-            default: mode === 'dark' ? '#0b0f19' : '#f8fafc',
-            paper: mode === 'dark' ? '#131b2e' : '#ffffff',
+            default: mode === 'dark' ? '#000000' : '#ffffff',
+            paper: mode === 'dark' ? '#0a0a0a' : '#ffffff',
           },
           text: {
-            primary: mode === 'dark' ? '#f8fafc' : '#0f172a',
-            secondary: mode === 'dark' ? '#94a3b8' : '#64748b',
+            primary: mode === 'dark' ? '#ffffff' : '#000000',
+            secondary: mode === 'dark' ? '#d4d4d4' : '#525252',
           },
         },
         typography: {
-          fontFamily: "'Plus Jakarta Sans', system-ui, -apple-system, sans-serif",
+          fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
         },
         shape: {
-          borderRadius: 16,
+          borderRadius: 8,
         },
       }),
     [mode]
@@ -108,90 +146,108 @@ export const HomePage: React.FC = () => {
       {
         id: 0,
         label: t('Number_short'),
-        icon: <Hash className="w-4 h-4 text-indigo-500" />,
+        icon: <Hash className="w-3.5 h-3.5" />,
       },
       {
         id: 1,
         label: t('Ball_short'),
-        icon: <Eye className="w-4 h-4 text-emerald-500" />,
+        icon: <Eye className="w-3.5 h-3.5" />,
       },
       {
         id: 2,
         label: t('StoopTest_short'),
-        icon: <Palette className="w-4 h-4 text-pink-500" />,
+        icon: <Palette className="w-3.5 h-3.5" />,
       },
       {
         id: 3,
         label: t('MemoryGame_short'),
-        icon: <Grid3X3 className="w-4 h-4 text-amber-500" />,
+        icon: <Grid3X3 className="w-3.5 h-3.5" />,
       },
     ],
     [t]
   );
+
+  // Fast, Direct Mouse-Following Ambient Glow
+  const mouseX = useMotionValue(typeof window !== 'undefined' ? window.innerWidth / 2 : 500);
+  const mouseY = useMotionValue(typeof window !== 'undefined' ? window.innerHeight / 2 : 400);
+
+  const springConfig = { damping: 28, stiffness: 450, mass: 0.1 };
+  const smoothMouseX = useSpring(mouseX, springConfig);
+  const smoothMouseY = useSpring(mouseY, springConfig);
+
+  // Exactly center the 640px glow circle on the pointer (offset by half dimension 320px)
+  const glowX = useTransform(smoothMouseX, (val) => val - 320);
+  const glowY = useTransform(smoothMouseY, (val) => val - 320);
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      mouseX.set(e.clientX);
+      mouseY.set(e.clientY);
+    };
+    window.addEventListener('mousemove', handleMouseMove, { passive: true });
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, [mouseX, mouseY]);
 
   return (
     <ThemeProvider theme={muiTheme}>
       <CssBaseline />
       <div
         className={cn(
-          'min-h-screen w-full flex flex-col font-sans transition-colors duration-300 relative',
-          mode === 'dark' ? 'bg-[#0b0f19] text-slate-100' : 'bg-slate-100 text-slate-900'
+          'min-h-screen w-full flex flex-col font-sans transition-colors duration-200 relative selection:bg-indigo-500/20',
+          mode === 'dark' ? 'bg-[#080b11] text-slate-100' : 'bg-[#f1f5f9] text-slate-950'
         )}
       >
-        {/* Ambient Glowing Background Orbs */}
-        <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
-          <div
-            className={cn(
-              'absolute -top-40 -left-40 w-96 h-96 rounded-full blur-3xl opacity-30 animate-pulse-slow',
-              mode === 'dark' ? 'bg-indigo-600' : 'bg-indigo-300'
-            )}
-          />
-          <div
-            className={cn(
-              'absolute top-1/3 -right-40 w-md h-112 rounded-full blur-3xl opacity-25 animate-pulse-slow',
-              mode === 'dark' ? 'bg-purple-600' : 'bg-purple-300'
-            )}
-            style={{ animationDelay: '3s' }}
-          />
-          <div
-            className={cn(
-              'absolute -bottom-40 left-1/3 w-80 h-80 rounded-full blur-3xl opacity-20 animate-pulse-slow',
-              mode === 'dark' ? 'bg-emerald-600' : 'bg-teal-300'
-            )}
-            style={{ animationDelay: '6s' }}
-          />
-        </div>
+        {/* Single Mouse-Following Ambient Glowing Light */}
+        <AnimatePresence>
+          {glowEnabled && (
+            <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
+              <motion.div
+                style={{
+                  x: glowX,
+                  y: glowY,
+                  background:
+                    mode === 'dark'
+                      ? activeGlowPreset.darkGradient
+                      : activeGlowPreset.lightGradient,
+                }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                className="absolute top-0 left-0 w-[640px] h-[640px] rounded-full blur-[80px] will-change-transform"
+              />
+            </div>
+          )}
+        </AnimatePresence>
 
-        {/* Floating Modern Header */}
-        <header className="sticky top-0 z-50 w-full px-4 sm:px-6 py-3">
+        {/* Liquid Glass Header - Single Surface Layout */}
+        <header className="sticky top-0 z-50 w-full px-4 sm:px-6 py-3.5">
           <div
             className={cn(
-              'max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3 px-4 py-2.5 rounded-3xl',
-              'border-2 border-slate-300/80 dark:border-slate-800/80 bg-white/95 dark:bg-slate-900/80',
-              'backdrop-blur-xl shadow-md shadow-slate-200/60 dark:shadow-indigo-500/5'
+              'max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3 px-5 py-2.5 rounded-3xl relative',
+              'liquid-glass-card shadow-lg'
             )}
           >
-            {/* Branding Logo */}
-            <div className="flex items-center gap-3 select-none">
-              <div className="relative flex items-center justify-center w-10 h-10 rounded-2xl bg-linear-to-tr from-indigo-600 to-purple-600 text-white shadow-md shadow-indigo-500/30">
-                <Brain className="w-5 h-5" />
-                <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
-                </span>
+            {/* Specular top rim highlight */}
+            <div className="absolute inset-x-8 top-0 h-[1.5px] bg-gradient-to-r from-transparent via-white/80 dark:via-white/35 to-transparent pointer-events-none" />
+
+            {/* Modern Logo */}
+            <div className="flex items-center gap-3 select-none relative z-10">
+              <div className="flex items-center justify-center w-8 h-8 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 text-white shadow-lg shadow-indigo-500/30 border border-white/20">
+                <Brain className="w-4 h-4" />
               </div>
               <div className="flex flex-col">
-                <span className="text-xl font-black tracking-tight bg-linear-to-r from-indigo-600 via-purple-600 to-pink-600 dark:from-indigo-400 dark:via-purple-400 dark:to-pink-400 bg-clip-text text-transparent">
+                <span className="text-base font-black tracking-tight text-slate-950 dark:text-white leading-tight">
                   Mnemosyne
                 </span>
-                <span className="text-[10px] font-bold text-slate-600 dark:text-slate-400 tracking-wider uppercase">
-                  Cognitive Lab
+                <span className="text-[10px] font-bold text-slate-700 dark:text-slate-400 tracking-wider uppercase leading-none">
+                  {t('cognitive_lab', 'Cognitive Lab')}
                 </span>
               </div>
             </div>
 
-            {/* Navigation Tabs */}
-            <div className="w-full md:w-auto flex justify-center">
+            {/* Segmented Navigation Tabs */}
+            <div className="w-full md:w-auto flex justify-center relative z-10">
               <AnimatedTabs
                 tabs={tabs}
                 activeTab={activeTab}
@@ -200,28 +256,25 @@ export const HomePage: React.FC = () => {
               />
             </div>
 
-            {/* Actions: Language & Theme Toggle */}
-            <div className="flex items-center gap-2">
+            {/* Actions: Clean Minimalist Controls on the Single Glass Surface */}
+            <div className="flex items-center gap-1 relative z-10">
               {/* Language Picker Dropdown */}
               <div className="relative" ref={langRef}>
                 <button
                   onClick={() => setLangOpen((prev) => !prev)}
                   className={cn(
-                    'flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-xl border-2',
-                    'bg-white dark:bg-slate-800/80 border-slate-300 dark:border-slate-700',
-                    'text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700/80',
-                    'transition-all duration-200 outline-none cursor-pointer shadow-sm'
+                    'flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-xl cursor-pointer',
+                    'liquid-glass-border-only',
+                    'text-slate-950 dark:text-slate-200 hover:bg-black/[0.03] dark:hover:bg-white/[0.05]',
+                    'transition-colors duration-150 outline-none'
                   )}
-                  aria-label="Change Language"
+                  aria-label={t('change_language', 'Change Language')}
                 >
-                  <Globe className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
-                  <span className="hidden sm:inline px-1 py-0.5 text-[9px] font-black rounded bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-200">
-                    {currentLangObj.code}
-                  </span>
-                  <span>{currentLangObj.label}</span>
+                  <Globe className="w-3.5 h-3.5 text-slate-900 dark:text-slate-200" />
+                  <span>{currentLangObj.code}</span>
                   <ChevronDown
                     className={cn(
-                      'w-3 h-3 text-slate-500 transition-transform duration-200',
+                      'w-3 h-3 text-slate-700 dark:text-slate-400 transition-transform duration-150',
                       langOpen && 'rotate-180'
                     )}
                   />
@@ -230,33 +283,26 @@ export const HomePage: React.FC = () => {
                 <AnimatePresence>
                   {langOpen && (
                     <motion.div
-                      initial={{ opacity: 0, y: 8, scale: 0.95 }}
+                      initial={{ opacity: 0, y: 6, scale: 0.96 }}
                       animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, y: 8, scale: 0.95 }}
-                      transition={{ duration: 0.15 }}
-                      className={cn(
-                        'absolute right-0 mt-2 w-36 rounded-2xl p-1.5 shadow-2xl border-2 z-50',
-                        'bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-800 backdrop-blur-xl'
-                      )}
+                      exit={{ opacity: 0, y: 6, scale: 0.96 }}
+                      transition={{ duration: 0.12, ease: 'easeOut' }}
+                      className="!absolute top-[calc(100%+8px)] right-0 w-36 rounded-2xl p-1.5 z-50 liquid-glass-dropdown shadow-2xl"
                     >
                       {languageList.map((item) => (
                         <button
                           key={item.value}
                           onClick={() => handleLanguageSelect(item.value)}
                           className={cn(
-                            'w-full flex items-center justify-between px-3 py-2 text-xs font-bold rounded-xl',
-                            'transition-colors duration-150 cursor-pointer',
+                            'w-full flex items-center justify-between px-3 py-2 text-xs rounded-xl',
+                            'transition-colors duration-150 cursor-pointer font-bold',
                             i18n.language === item.value
-                              ? 'bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-400 font-black'
-                              : 'text-slate-700 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/70'
+                              ? 'bg-indigo-600 text-white shadow-sm'
+                              : 'text-slate-900 dark:text-slate-200 hover:bg-slate-200/80 dark:hover:bg-white/10'
                           )}
                         >
-                          <span className="flex items-center gap-2">
-                            <span className="px-1 py-0.5 text-[9px] font-bold rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
-                              {item.code}
-                            </span>
-                            <span>{item.label}</span>
-                          </span>
+                          <span>{item.label}</span>
+                          <span className="text-[10px] font-mono opacity-75">{item.code}</span>
                         </button>
                       ))}
                     </motion.div>
@@ -268,16 +314,16 @@ export const HomePage: React.FC = () => {
               <button
                 onClick={toggleTheme}
                 className={cn(
-                  'p-2 rounded-xl border-2 transition-all duration-200 cursor-pointer shadow-sm',
-                  'bg-white dark:bg-slate-800/80 border-slate-300 dark:border-slate-700',
-                  'text-slate-800 dark:text-slate-200 hover:scale-105 active:scale-95'
+                  'p-2 rounded-xl cursor-pointer text-slate-950 dark:text-slate-200',
+                  'liquid-glass-border-only',
+                  'hover:bg-black/[0.03] dark:hover:bg-white/[0.05] transition-colors duration-150'
                 )}
-                aria-label="Toggle Theme"
+                aria-label={t('toggle_theme', 'Toggle Theme')}
               >
                 {mode === 'dark' ? (
-                  <Sun className="w-4 h-4 text-amber-400" />
+                  <Sun className="w-3.5 h-3.5 text-white" />
                 ) : (
-                  <Moon className="w-4 h-4 text-indigo-600" />
+                  <Moon className="w-3.5 h-3.5 text-slate-950" />
                 )}
               </button>
             </div>
@@ -285,14 +331,14 @@ export const HomePage: React.FC = () => {
         </header>
 
         {/* Main Content Area */}
-        <main className="relative z-10 flex-1 max-w-5xl w-full mx-auto px-4 py-6 flex flex-col items-center justify-center">
+        <main className="relative z-10 flex-1 max-w-4xl w-full mx-auto px-4 py-8 flex flex-col items-center justify-center">
           <AnimatePresence mode="wait">
             <motion.div
               key={activeTab}
-              initial={{ opacity: 0, y: 16, scale: 0.98 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -16, scale: 0.98 }}
-              transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: 0.15 }}
               className="w-full"
             >
               {activeTab === 0 && <NumberTest onClose={setActiveTab} />}
@@ -302,6 +348,14 @@ export const HomePage: React.FC = () => {
             </motion.div>
           </AnimatePresence>
         </main>
+
+        {/* Floating Ambient Glow Control Button */}
+        <FloatingAmbientControl
+          enabled={glowEnabled}
+          onToggle={() => setGlowEnabled((prev) => !prev)}
+          selectedColorId={glowColorId}
+          onSelectColor={setGlowColorId}
+        />
       </div>
     </ThemeProvider>
   );

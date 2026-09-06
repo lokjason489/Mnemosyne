@@ -8,29 +8,28 @@ interface GlowCardProps extends React.HTMLAttributes<HTMLDivElement> {
   glowColor?: string;
 }
 
-export const GlowCard: React.FC<GlowCardProps> = ({
-  children,
-  className,
-  glowColor = 'rgba(99, 102, 241, 0.15)',
-  ...props
-}) => {
+export const GlowCard: React.FC<GlowCardProps> = ({ children, className, ...props }) => {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 12 }}
+      initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+      transition={{ duration: 0.18, ease: 'easeOut' }}
       className={cn(
-        'relative rounded-3xl border border-slate-300 dark:border-slate-800/80',
-        'bg-white dark:bg-slate-900/90 backdrop-blur-xl shadow-xl shadow-slate-200/60 dark:shadow-indigo-500/5',
-        'transition-all duration-300 hover:shadow-2xl hover:shadow-indigo-500/10',
-        'overflow-hidden',
+        'relative rounded-3xl p-6 md:p-8 transition-all duration-300',
+        'liquid-glass-card',
+        'text-slate-950 dark:text-white',
         className
       )}
-      style={{
-        boxShadow: `0 10px 30px -10px ${glowColor}, 0 0 0 1px rgba(0, 0, 0, 0.04)`,
-      }}
       {...(props as any)}
     >
+      {/* Specular fluid light reflections */}
+      <div className="absolute inset-0 rounded-[inherit] pointer-events-none overflow-hidden">
+        {/* Soft curved reflection sheen */}
+        <div className="absolute -top-[50%] -left-[15%] w-[130%] h-[90%] rounded-full bg-gradient-to-b from-white/35 via-white/5 to-transparent dark:from-white/10 pointer-events-none" />
+        {/* Top edge crisp specular light rim */}
+        <div className="absolute inset-x-8 top-0 h-[1.5px] bg-gradient-to-r from-transparent via-white/90 dark:via-white/40 to-transparent" />
+      </div>
+
       <div className="relative z-10">{children}</div>
     </motion.div>
   );
