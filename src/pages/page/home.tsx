@@ -6,6 +6,7 @@ import type React from 'react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { BallTest, MemoryGame, NumberTest, StoopTest } from '../../components';
+import { AdBanner } from '../../components/ui/AdBanner';
 import { AnimatedTabs, type TabItem } from '../../components/ui/AnimatedTabs';
 import { FloatingAmbientControl, GLOW_PRESETS } from '../../components/ui/FloatingAmbientControl';
 import { cn } from '../../utils/cn';
@@ -348,6 +349,17 @@ export const HomePage: React.FC = () => {
             </motion.div>
           </AnimatePresence>
         </main>
+
+        {/* Footer Area with Google Ads Banner */}
+        <footer className="relative z-10 w-full max-w-4xl mx-auto px-4 pb-8 pt-2 flex flex-col items-center gap-4">
+          <AdBanner adClient="ca-pub-6995811232744511" className="w-full" />
+          <div className="flex flex-col sm:flex-row items-center justify-between w-full text-xs font-semibold text-slate-600 dark:text-slate-400 px-2 select-none gap-2">
+            <span>© {new Date().getFullYear()} Mnemosyne Cognitive Lab</span>
+            <span className="opacity-75">
+              {t('cognitive_training', 'Cognitive & Memory Training')}
+            </span>
+          </div>
+        </footer>
 
         {/* Floating Ambient Glow Control Button */}
         <FloatingAmbientControl
